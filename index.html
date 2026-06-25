@@ -986,16 +986,7 @@
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.getElementById('yr').textContent=new Date().getFullYear();
 
-  /* personal admin flag — controls the "New entry" button; lives only in YOUR browser.
-     Turn on once by visiting  ...hannahbuilds.html?admin=1  (or ⌘K → "Toggle my controls"). */
-  function setAdmin(on){try{if(on){localStorage.setItem('hb-admin','1');document.documentElement.setAttribute('data-admin','');}else{localStorage.removeItem('hb-admin');document.documentElement.removeAttribute('data-admin');}}catch(e){}}
-  (function(){try{
-    var p=new URLSearchParams(location.search);
-    if(p.has('admin'))setAdmin(p.get('admin')!=='0');
-    else if(localStorage.getItem('hb-admin')==='1')document.documentElement.setAttribute('data-admin','');
-  }catch(e){}})();
-
-  /* admin auth — Supabase magic-link login, gated to one verified email */
+  /* admin auth — Supabase magic-link login, gated to one verified email (the ONLY way in) */
   var ADMIN_EMAIL='hannah@transformventures.io';
   (function(){
     var SUPA_URL='https://uligntdamfbesnoybdpz.supabase.co', SUPA_KEY='sb_publishable_VV5CJy1L6k1kEYxfimZSsQ_mFctT41H';
@@ -1004,9 +995,9 @@
     window.__sb=sb;
     function apply(session){
       var email=session&&session.user&&(session.user.email||'').toLowerCase();
-      if(email===ADMIN_EMAIL){document.documentElement.setAttribute('data-admin','');}
-      else if(email){document.documentElement.removeAttribute('data-admin');sb.auth.signOut();toast('That email is not the owner');}
-      /* no session: leave current state (the temporary ?admin fallback) */
+      if(email===ADMIN_EMAIL){document.documentElement.setAttribute('data-admin','');return;}
+      document.documentElement.removeAttribute('data-admin');
+      if(email){sb.auth.signOut();toast('That email is not the owner');}
     }
     sb.auth.getSession().then(function(r){apply(r.data&&r.data.session);});
     sb.auth.onAuthStateChange(function(_e,session){apply(session);});
