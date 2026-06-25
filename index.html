@@ -352,6 +352,15 @@
   .wall-form input,.wall-form textarea{font-family:var(--body);font-size:1rem;color:var(--ink);background:var(--bg);border:none;box-shadow:inset 0 0 0 1px var(--line);border-radius:12px;padding:14px 16px;resize:none;transition:box-shadow .25s;}
   .wall-form input:focus,.wall-form textarea:focus{outline:none;box-shadow:inset 0 0 0 1px var(--ink);}
   .wall-form .hint{font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;color:var(--faint);}
+  /* work with me */
+  .hire-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.6vw,30px);}
+  .hire-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px 26px;transition:box-shadow .3s var(--ease),transform .3s var(--ease),border-color .3s var(--ease);}
+  .hire-card:hover{transform:translateY(-3px);box-shadow:0 26px 46px -28px rgba(27,17,19,.42);border-color:transparent;}
+  .hc-n{font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--red);letter-spacing:.1em;margin-bottom:16px;}
+  .hire-card h3{font-family:var(--display);font-weight:600;font-size:1.26rem;letter-spacing:-.02em;margin-bottom:11px;}
+  .hire-card p{color:var(--muted);font-size:.96rem;line-height:1.55;}
+  .hire-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px;}
+  @media(max-width:760px){.hire-grid{grid-template-columns:1fr;}}
   .wall-list{display:flex;flex-direction:column;gap:12px;max-height:360px;overflow:auto;padding-right:4px;}
   .note{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:14px;padding:16px 18px;}
   .note .who{font-weight:600;font-size:.95rem;margin-bottom:4px;}
@@ -1004,9 +1013,28 @@
     <div class="now reveal"><span class="chip active">Armenian — Eastern &amp; Western</span><span class="chip">Health &amp; fitness</span><span class="chip">Travel</span><span class="chip">Writing in public</span></div>
   </div></section>
 
+  <section id="hire"><div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker"><span class="idx">08</span><span class="rule"></span><span class="eyebrow">Work with me</span></div>
+      <h2>A marketer who can <em>build it</em> too</h2>
+    </div>
+    <div class="prose reveal" style="margin-bottom:36px;">
+      <p>Most teams have to pick — someone who can position and grow it, or someone who can actually ship it. I'm both halves in one person: fewer hand-offs, less lost in translation, more things that genuinely go live.</p>
+    </div>
+    <div class="hire-grid reveal">
+      <div class="hire-card"><div class="hc-n">01</div><h3>Marketing &amp; content</h3><p>Positioning, go-to-market, and AI-assisted content systems that keep multiple brands shipping consistently.</p></div>
+      <div class="hire-card"><div class="hc-n">02</div><h3>Sites &amp; automations</h3><p>Fast, custom websites and n8n automations that quietly handle the busywork so you don't have to.</p></div>
+      <div class="hire-card"><div class="hc-n">03</div><h3>AI tools &amp; chatbots</h3><p>Practical AI — assistants, chatbots, and internal tools wired into the real work, like the one floating in the corner of this page.</p></div>
+    </div>
+    <div class="hire-cta reveal">
+      <a href="mailto:hannah@transformventures.io" class="pill pill-dark">Start a conversation</a>
+      <a href="#say-hi" class="pill pill-ghost">More ways to reach me</a>
+    </div>
+  </div></section>
+
   <section id="wall"><div class="wrap">
     <div class="sec-head reveal">
-      <div class="kicker"><span class="idx">08</span><span class="rule"></span><span class="eyebrow">Guestbook</span></div>
+      <div class="kicker"><span class="idx">09</span><span class="rule"></span><span class="eyebrow">Guestbook</span></div>
       <h2>Leave a <em>mark</em></h2>
     </div>
     <div class="wall reveal">
@@ -1470,7 +1498,7 @@
     var go=function(id){return function(){document.getElementById(id).scrollIntoView({behavior:'smooth'});};};
     var cmds=[
       {ic:'Go',nm:'About',fn:go('about')},{ic:'Go',nm:'Journey',fn:go('journey')},{ic:'Go',nm:'Work',fn:go('work')},
-      {ic:'Go',nm:'Workflow',fn:go('workflow')},{ic:'Go',nm:'Content',fn:go('content')},{ic:'Go',nm:'Approach',fn:go('thread')},{ic:'Go',nm:'Guestbook',fn:go('wall')},{ic:'Go',nm:'Contact',fn:go('say-hi')},
+      {ic:'Go',nm:'Workflow',fn:go('workflow')},{ic:'Go',nm:'Content',fn:go('content')},{ic:'Go',nm:'Approach',fn:go('thread')},{ic:'Go',nm:'Work with me',fn:go('hire')},{ic:'Go',nm:'Guestbook',fn:go('wall')},{ic:'Go',nm:'Contact',fn:go('say-hi')},
       {ic:'Mode',nm:'Switch to Marketer voice',fn:function(){setMode('marketer',true);toast('Marketer mode');}},
       {ic:'Mode',nm:'Switch to Builder voice',fn:function(){setMode('builder',true);toast('Builder mode');}},
       {ic:'Mode',nm:'Open the Traveler blog',fn:function(){setView('travel',true);toast('Traveler — field notes');}},
