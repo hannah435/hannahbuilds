@@ -432,6 +432,8 @@
     transition:box-shadow .25s var(--ease),transform .25s var(--ease),background .25s var(--ease);}
   html[data-admin] .new-entry{display:inline-flex;}
   .new-entry:hover{box-shadow:inset 0 0 0 1px var(--red);transform:translateY(-2px);background:var(--rose);}
+  .new-entry--hero{color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);}
+  .new-entry--hero:hover{color:#fff;box-shadow:inset 0 0 0 1px #fff;background:rgba(255,255,255,.14);}
 </style>
 </head>
 <body>
@@ -896,6 +898,7 @@
       <div class="eyebrow">The Traveler</div>
       <h1>New places, new tools, new things to <em>figure out</em>.</h1>
       <p class="lede">When I'm not marketing or building, I'm somewhere new — collecting languages, food, and the small details that never make the guidebooks. Field notes from the road below.</p>
+      <div class="cta-row" style="margin-top:30px"><a class="new-entry new-entry--hero" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a></div>
     </div>
   </div>
   <section><div class="wrap">
@@ -1081,7 +1084,7 @@
   document.getElementById('m-trv').onclick=function(){setView('travel',true);};
   // restore state (mode text + view) without animation
   var savedMode='marketer',savedView='work';
-  try{savedMode=localStorage.getItem('hb-mode')||'marketer';savedView=localStorage.getItem('hb-view')||(location.hash==='#travel'?'travel':'work');}catch(e){}
+  try{savedMode=localStorage.getItem('hb-mode')||'marketer';savedView=(location.hash==='#travel')?'travel':(localStorage.getItem('hb-view')||'work');}catch(e){}
   root.setAttribute('data-mode',savedMode);applyModeText(savedMode);
   root.setAttribute('data-view',savedView);
   requestAnimationFrame(function(){syncToggle(false);});
