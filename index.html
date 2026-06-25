@@ -981,6 +981,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.getElementById('yr').textContent=new Date().getFullYear();
@@ -993,6 +994,30 @@
     if(p.has('admin'))setAdmin(p.get('admin')!=='0');
     else if(localStorage.getItem('hb-admin')==='1')document.documentElement.setAttribute('data-admin','');
   }catch(e){}})();
+
+  /* admin auth — Supabase magic-link login, gated to one verified email */
+  var ADMIN_EMAIL='hannah@transformventures.io';
+  (function(){
+    var SUPA_URL='https://uligntdamfbesnoybdpz.supabase.co', SUPA_KEY='sb_publishable_VV5CJy1L6k1kEYxfimZSsQ_mFctT41H';
+    if(!window.supabase||!SUPA_URL||!SUPA_KEY)return;
+    var sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+    window.__sb=sb;
+    function apply(session){
+      var email=session&&session.user&&(session.user.email||'').toLowerCase();
+      if(email===ADMIN_EMAIL){document.documentElement.setAttribute('data-admin','');}
+      else if(email){document.documentElement.removeAttribute('data-admin');sb.auth.signOut();toast('That email is not the owner');}
+      /* no session: leave current state (the temporary ?admin fallback) */
+    }
+    sb.auth.getSession().then(function(r){apply(r.data&&r.data.session);});
+    sb.auth.onAuthStateChange(function(_e,session){apply(session);});
+    window.__adminLogin=function(){
+      var email=prompt('Email to receive your sign-in link:',ADMIN_EMAIL);
+      if(!email)return;
+      sb.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:location.origin+location.pathname}})
+        .then(function(r){toast(r.error?('Login error: '+r.error.message):'Check your email for the sign-in link');});
+    };
+    window.__adminLogout=function(){sb.auth.signOut().then(function(){document.documentElement.removeAttribute('data-admin');try{localStorage.removeItem('hb-admin');}catch(e){}toast('Logged out');});};
+  })();
 
   /* reveal */
   if(!reduce&&'IntersectionObserver'in window){
@@ -1264,7 +1289,8 @@
       {ic:'Mode',nm:'Switch to Marketer voice',fn:function(){setMode('marketer',true);toast('Marketer mode');}},
       {ic:'Mode',nm:'Switch to Builder voice',fn:function(){setMode('builder',true);toast('Builder mode');}},
       {ic:'Mode',nm:'Open the Traveler blog',fn:function(){setView('travel',true);toast('Traveler — field notes');}},
-      {ic:'Do',nm:'Toggle my controls (admin)',fn:function(){var on=!document.documentElement.hasAttribute('data-admin');setAdmin(on);toast(on?'Admin on — “New entry” visible':'Admin off — hidden');}},
+      {ic:'Do',nm:'Admin login (email link)',fn:function(){window.__adminLogin?window.__adminLogin():toast('Auth not ready');}},
+      {ic:'Do',nm:'Admin logout',fn:function(){window.__adminLogout&&window.__adminLogout();}},
       {ic:'Do',nm:'Copy email address',fn:function(){var e='hannah@transformventures.io';(navigator.clipboard?navigator.clipboard.writeText(e):0);toast('Copied '+e);}},
       {ic:'Do',nm:'Run the workflow',fn:function(){go('workflow')();setTimeout(function(){window.__wfRun&&window.__wfRun();},700);}},
       {ic:'Link',nm:'Open LinkedIn',fn:function(){window.open('https://www.linkedin.com/in/hannah-sotto-812677241/','_blank');}},
