@@ -457,9 +457,16 @@
     align-items:center;gap:7px;padding:9px 15px;border-radius:99px;box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .25s var(--ease);}
   .pp-edit:hover{box-shadow:inset 0 0 0 1px var(--red);}
   html[data-admin] .pp-edit{display:inline-flex;}
-  .pp-gallery{display:flex;flex-direction:column;gap:14px;margin-bottom:36px;}
-  .pp-gallery img{width:100%;height:auto;display:block;border-radius:16px;}
+  .pp-gallery{margin:0 0 36px;}
   .pp-gallery:empty{display:none;}
+  .pp-gallery>img{width:100%;height:auto;display:block;border-radius:16px;}
+  .pp-gallery.moving{overflow:hidden;border-radius:18px;
+    -webkit-mask:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);}
+  .pp-gallery.moving .gtrack{display:flex;gap:14px;width:max-content;animation:gscroll 32s linear infinite;}
+  .pp-gallery.moving:hover .gtrack{animation-play-state:paused;}
+  .pp-gallery.moving img{height:clamp(220px,40vh,380px);width:auto;flex:0 0 auto;border-radius:14px;display:block;object-fit:cover;}
+  @keyframes gscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.pp-gallery.moving{overflow-x:auto;}.pp-gallery.moving .gtrack{animation:none;}}
   .pp-story p{color:#352a2d;font-size:clamp(1.08rem,1.6vw,1.22rem);line-height:1.75;margin-bottom:1.2em;}
   .pp-story p:last-child{margin-bottom:0;}
   .pp-story h2{font-family:var(--display);font-weight:600;font-size:1.5rem;letter-spacing:-.02em;margin:1.4em 0 .5em;}
@@ -1252,7 +1259,10 @@
     var meta=document.getElementById('pp-meta'),title=document.getElementById('pp-title'),gallery=document.getElementById('pp-gallery'),story=document.getElementById('pp-story'),edit=document.getElementById('pp-edit');
     function render(d){
       meta.textContent=d.meta||'';title.textContent=d.title||'';
-      gallery.innerHTML=(d.photos||[]).map(function(src){return '<img src="'+esc(src)+'" alt="'+esc(d.title||'')+'" loading="lazy">';}).join('');
+      var photos=d.photos||[];
+      var imgs=photos.map(function(src){return '<img src="'+esc(src)+'" alt="'+esc(d.title||'')+'" loading="lazy">';}).join('');
+      if(photos.length>1){gallery.className='pp-gallery moving';gallery.innerHTML='<div class="gtrack">'+imgs+imgs+'</div>';}
+      else{gallery.className='pp-gallery';gallery.innerHTML=imgs;}
       story.innerHTML=mdToHtml(d.story);
       if(d.id&&d.id!=='sample'){edit.href='https://airtable.com/appq7sYFvf7VCebn4/tbl7y8DH78JcdAA3Z/'+d.id;edit.style.display='';}
       else{edit.style.display='none';}
