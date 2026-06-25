@@ -445,7 +445,7 @@
   .post-data{display:none;}
   /* full post page (in-page route #post/<id>) */
   .postpage{display:none;padding:clamp(40px,7vh,90px) 0 var(--gut);}
-  #travelmain.post-open .travel-hero,#travelmain.post-open #bloglist{display:none;}
+  #travelmain.post-open .travel-hero,#travelmain.post-open #bloglist,#travelmain.post-open #travelmap-sec{display:none;}
   #travelmain.post-open .postpage{display:block;}
   .postpage .wrap{max-width:760px;}
   .post-back{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--red);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:gap .25s var(--ease);}
@@ -477,7 +477,90 @@
   .pp-story strong{font-weight:700;color:var(--ink);}
   .pp-story em{font-style:italic;}
   .pp-foot{margin-top:44px;padding-top:26px;border-top:1px solid var(--line);}
+
+  /* ── Travel map ───────────────────────────────────────────────── */
+  #travelmap-sec{padding-top:clamp(18px,4vh,46px);}
+  #travelmap-sec .kicker{margin-bottom:18px;}
+  .map-frame{position:relative;border-radius:22px;overflow:hidden;border:1px solid #CBE7E1;background:#E7F4F1;box-shadow:0 30px 60px -34px rgba(14,94,110,.4);}
+  #travelmap{height:clamp(320px,52vh,520px);width:100%;background:#E7F4F1;}
+  /* tint the minimal light tiles into a soft ocean-teal */
+  #travelmap .leaflet-tile-pane{filter:sepia(.5) hue-rotate(118deg) saturate(1.35) brightness(1.03) contrast(.97);}
+  /* soft teal glow echoing the hero gradient, doesn't block the pins */
+  .map-frame::after{content:"";position:absolute;inset:0;z-index:450;pointer-events:none;
+    background:radial-gradient(120% 130% at 80% 4%, rgba(127,224,210,.22), transparent 50%),
+               radial-gradient(60% 50% at 12% 100%, rgba(45,182,174,.13), transparent 70%);}
+  .leaflet-container{background:#E7F4F1!important;font-family:var(--body);}
+  .leaflet-control-zoom{border:none!important;box-shadow:0 6px 16px -8px rgba(14,94,110,.45)!important;}
+  .leaflet-control-zoom a{color:#0c5a63!important;background:rgba(255,255,255,.95)!important;border:none!important;border-bottom:1px solid rgba(14,94,110,.16)!important;font-weight:700;}
+  .leaflet-control-zoom a:hover{background:#fff!important;}
+  .leaflet-control-attribution{font-size:9px!important;background:rgba(255,255,255,.66)!important;color:#5b8a87!important;}
+  .leaflet-control-attribution a{color:#13998f!important;}
+  .map-pin{display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+  .map-pin .dot{width:13px;height:13px;border-radius:99px;background:#13998f;
+    box-shadow:0 0 0 0 rgba(19,153,143,.5),0 2px 5px rgba(12,90,99,.32);animation:pinPulse 2s var(--ease) infinite;}
+  @keyframes pinPulse{
+    0%{box-shadow:0 0 0 0 rgba(19,153,143,.5),0 2px 5px rgba(12,90,99,.32);}
+    70%{box-shadow:0 0 0 13px rgba(19,153,143,0),0 2px 5px rgba(12,90,99,.32);}
+    100%{box-shadow:0 0 0 0 rgba(19,153,143,0),0 2px 5px rgba(12,90,99,.32);}
+  }
+  .map-pin .lab{margin-top:7px;font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:#0c5a63;background:rgba(255,255,255,.93);padding:3px 9px;border-radius:99px;box-shadow:0 2px 8px rgba(14,94,110,.18),inset 0 0 0 1px rgba(19,153,143,.2);white-space:nowrap;transition:transform .2s var(--ease);}
+  .map-pin:hover .dot{transform:scale(1.3);}
+  .map-pin:hover .lab{transform:translateY(-1px);}
+  .map-empty{position:absolute;inset:0;z-index:500;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;color:#5b8a87;font-size:.92rem;pointer-events:none;}
+  .map-frame.empty .map-empty{display:flex;}
+  @media (prefers-reduced-motion: reduce){.map-pin .dot{animation:none!important;}.map-pin .lab{transition:none!important;}}
+
+  /* ── Ask Hannah — live AI chat ────────────────────────────────── */
+  .ask{position:fixed;right:clamp(16px,3vw,30px);bottom:clamp(16px,3vw,30px);z-index:9999;font-family:var(--body);}
+  .ask-fab{appearance:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:9px;
+    background:var(--ink);color:#fff;font-weight:600;font-size:.92rem;letter-spacing:-.01em;
+    padding:13px 19px;border-radius:99px;box-shadow:0 14px 34px -14px rgba(27,17,19,.7);
+    transition:transform .3s var(--ease),box-shadow .3s var(--ease),opacity .25s var(--ease);}
+  .ask-fab:hover{transform:translateY(-2px);box-shadow:0 20px 40px -16px rgba(27,17,19,.75);}
+  .ask-fab-dot{width:8px;height:8px;border-radius:99px;background:var(--peach);box-shadow:0 0 0 0 rgba(255,154,134,.7);}
+  .ask:not(.open) .ask-fab-dot{animation:askPulse 2.6s var(--ease) infinite;}
+  @keyframes askPulse{0%{box-shadow:0 0 0 0 rgba(255,154,134,.6);}70%{box-shadow:0 0 0 9px rgba(255,154,134,0);}100%{box-shadow:0 0 0 0 rgba(255,154,134,0);}}
+  .ask.open .ask-fab{opacity:0;pointer-events:none;transform:translateY(8px) scale(.9);}
+  .ask-panel{position:absolute;right:0;bottom:0;width:min(92vw,380px);height:min(72vh,560px);
+    display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border:1px solid var(--line);
+    border-radius:22px;box-shadow:0 30px 70px -24px rgba(27,17,19,.5);
+    opacity:0;transform:translateY(14px) scale(.97);pointer-events:none;transform-origin:bottom right;
+    transition:opacity .3s var(--ease),transform .3s var(--ease);}
+  .ask.open .ask-panel{opacity:1;transform:none;pointer-events:auto;}
+  .ask-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px 14px;
+    background:var(--ink);color:#fff;}
+  .ask-name{font-family:var(--display);font-weight:600;font-size:1.18rem;letter-spacing:-.02em;}
+  .ask-sub{font-size:.74rem;color:rgba(255,255,255,.62);margin-top:2px;}
+  .ask-x{appearance:none;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:1.5rem;line-height:1;cursor:pointer;padding:0 2px;transition:color .2s;}
+  .ask-x:hover{color:#fff;}
+  .ask-log{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;}
+  .ask-msg{max-width:84%;padding:11px 15px;border-radius:16px;font-size:.92rem;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+  .ask-msg.me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:5px;}
+  .ask-msg.her{align-self:flex-start;background:var(--cream);color:var(--ink);border-bottom-left-radius:5px;}
+  .ask-msg a{color:var(--red);}
+  .ask-suggest{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+  .ask-chip{appearance:none;border:none;cursor:pointer;font-family:var(--body);font-size:.78rem;color:var(--ink);
+    background:transparent;box-shadow:inset 0 0 0 1px var(--line);border-radius:99px;padding:7px 12px;transition:box-shadow .2s,transform .2s;}
+  .ask-chip:hover{box-shadow:inset 0 0 0 1px var(--ink);transform:translateY(-1px);}
+  .ask-dots{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 16px;background:var(--cream);border-radius:16px;border-bottom-left-radius:5px;}
+  .ask-dots i{width:6px;height:6px;border-radius:99px;background:var(--faint);animation:askBlink 1.2s infinite;}
+  .ask-dots i:nth-child(2){animation-delay:.18s;}
+  .ask-dots i:nth-child(3){animation-delay:.36s;}
+  @keyframes askBlink{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+  .ask-form{display:flex;align-items:center;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--bg);}
+  .ask-in{flex:1;border:none;outline:none;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);
+    border-radius:99px;padding:12px 16px;font-family:var(--body);font-size:.92rem;color:var(--ink);transition:box-shadow .2s;}
+  .ask-in:focus{box-shadow:inset 0 0 0 1px var(--ink);}
+  .ask-send{appearance:none;border:none;cursor:pointer;width:42px;height:42px;flex:none;border-radius:99px;
+    background:var(--ink);color:#fff;font-size:1.15rem;display:grid;place-items:center;transition:transform .2s,opacity .2s;}
+  .ask-send:hover{transform:translateY(-1px);}
+  .ask-send:disabled{opacity:.4;cursor:default;transform:none;}
+  .ask-foot{padding:0 14px 11px;font-size:.66rem;color:var(--faint);text-align:center;letter-spacing:.01em;}
+  @media (prefers-reduced-motion: reduce){
+    .ask-fab,.ask-panel,.ask-fab-dot,.ask-dots i{transition:none !important;animation:none !important;}
+  }
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -944,6 +1027,13 @@
       <div class="cta-row" style="margin-top:30px"><a class="new-entry new-entry--hero" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a></div>
     </div>
   </div>
+  <section id="travelmap-sec"><div class="wrap">
+    <div class="kicker reveal"><span class="idx">&#9678;</span><span class="rule"></span><span class="eyebrow">Where I've been</span></div>
+    <div class="map-frame reveal empty">
+      <div id="travelmap" role="img" aria-label="Map of places I've travelled"></div>
+      <div class="map-empty" id="map-empty">Pins land here as field notes get published.</div>
+    </div>
+  </div></section>
   <section id="bloglist"><div class="wrap">
     <div class="sec-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:none;">
       <div>
@@ -952,7 +1042,7 @@
       </div>
       <a class="new-entry" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a>
     </div>
-    <div class="blog reveal" id="blog"><!--POSTS--><article class="post" tabindex="0"><div class="post-media"><img src="travel-recZBCncGf41mDUxs-0.jpeg" alt="First Family Trip to Taiwan 🇹🇼" loading="lazy"></div><div class="post-body"><div class="post-meta">Taipei, Taiwan · May 2026</div><h3>First Family Trip to Taiwan 🇹🇼</h3><p class="post-excerpt">For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked…</p><span class="post-read">Read full post &#8594;</span></div><script type="application/json" class="post-data">{"id": "recZBCncGf41mDUxs", "title": "First Family Trip to Taiwan 🇹🇼", "meta": "Taipei, Taiwan · May 2026", "photos": ["travel-recZBCncGf41mDUxs-0.jpeg", "travel-recZBCncGf41mDUxs-1.jpeg", "travel-recZBCncGf41mDUxs-2.jpeg"], "story": "For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked interesting. Friend trips where the itinerary was basically “say yes to everything and figure out sleep later.” I got good at moving fast, packing light, and not having to check in with anyone. So when we finally booked Taiwan as a family, I genuinely didn’t know what kind of traveler I’d be once the people I grew up with were standing next to me at the airport.\n\nTurns out: a much slower one.\n\nThe first thing I noticed was the mornings. On my own, I’m out the door before I’ve fully woken up. With family, mornings became this whole event — someone still getting ready, someone hungry, someone wanting “just one coffee first.” At first it drove me a little crazy. By day three I kind of loved it. We weren’t rushing toward anything; we were just easing into the day together, and Taipei is a city that rewards that. You don’t have to chase it. It comes to you.\n\nTaipei itself was the perfect first family destination, even if I didn’t plan it that way. It’s clean, it’s easy to get around, the MRT made everyone feel confident instead of overwhelmed, and there’s food literally everywhere — which matters when you’re traveling with people who measure a good day by what they ate. And we ate. Beef noodle soup that made everyone go quiet for a second. Soup dumplings where we all argued about the “correct” way to eat them. Bubble tea basically as a personality. Night markets where we split up, wandered, and kept circling back to each other holding new things to try. Shilin, Raohe, the smell of grilled squid and stinky tofu mixing in the air — that’s the version of Taiwan I’ll remember most.\n\nWhat surprised me wasn’t the country, though. It was watching my family experience the way I travel. They’ve heard the stories for years — the solo trips, the random detours, the “I’ll figure it out when I get there” energy. But this was the first time they actually saw it. Saw me read a map in a language none of us spoke, negotiate a taxi, find the good food stall instead of the touristy one, stay calm when plans fell apart. I think they understood me a little better by the end of it. And I understood them better too — what they get tired of, what makes them light up, what “fun” actually means to each of them.\n\nThere were the expected moments, of course. The endless “where do we eat” debates that somehow took longer than the meal itself. The differing energy levels — some of us could walk all day, others tapped out by mid-afternoon and needed a sit-down and a drink. The group photos that took five tries because someone always blinked. But none of it felt like a problem. It felt like us, just in a new place.\n\nThe thing about solo travel is that it’s all yours — every memory belongs to you and only you. The thing about family travel is the opposite: every memory is shared, which means it gets retold, exaggerated, and argued about for years afterward. I used to think I preferred the first kind. After Taiwan, I’m not so sure. There’s something about turning to people who’ve known you your whole life and saying “remember that night market?” — and having them actually remember.\n\nI came into this trip wondering if traveling with family would feel like a compromise. It didn’t. It just felt like a different way of seeing the world — slower, louder, messier, and somehow fuller. Taiwan gave us the perfect place to figure that out together. And honestly? I think this is the first of many.\n\nNext time, I’m letting them pick the country."}</script></article><!--/POSTS-->
+    <div class="blog reveal" id="blog"><!--POSTS--><article class="post" tabindex="0"><div class="post-media"><img src="travel-recZBCncGf41mDUxs-0.jpeg" alt="First Family Trip to Taiwan 🇹🇼" loading="lazy"></div><div class="post-body"><div class="post-meta">Taipei, Taiwan · May 2026</div><h3>First Family Trip to Taiwan 🇹🇼</h3><p class="post-excerpt">For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked…</p><span class="post-read">Read full post &#8594;</span></div><script type="application/json" class="post-data">{"id": "recZBCncGf41mDUxs", "title": "First Family Trip to Taiwan 🇹🇼", "place": "Taipei, Taiwan", "meta": "Taipei, Taiwan · May 2026", "photos": ["travel-recZBCncGf41mDUxs-0.jpeg", "travel-recZBCncGf41mDUxs-1.jpeg", "travel-recZBCncGf41mDUxs-2.jpeg"], "story": "For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked interesting. Friend trips where the itinerary was basically “say yes to everything and figure out sleep later.” I got good at moving fast, packing light, and not having to check in with anyone. So when we finally booked Taiwan as a family, I genuinely didn’t know what kind of traveler I’d be once the people I grew up with were standing next to me at the airport.\n\nTurns out: a much slower one.\n\nThe first thing I noticed was the mornings. On my own, I’m out the door before I’ve fully woken up. With family, mornings became this whole event — someone still getting ready, someone hungry, someone wanting “just one coffee first.” At first it drove me a little crazy. By day three I kind of loved it. We weren’t rushing toward anything; we were just easing into the day together, and Taipei is a city that rewards that. You don’t have to chase it. It comes to you.\n\nTaipei itself was the perfect first family destination, even if I didn’t plan it that way. It’s clean, it’s easy to get around, the MRT made everyone feel confident instead of overwhelmed, and there’s food literally everywhere — which matters when you’re traveling with people who measure a good day by what they ate. And we ate. Beef noodle soup that made everyone go quiet for a second. Soup dumplings where we all argued about the “correct” way to eat them. Bubble tea basically as a personality. Night markets where we split up, wandered, and kept circling back to each other holding new things to try. Shilin, Raohe, the smell of grilled squid and stinky tofu mixing in the air — that’s the version of Taiwan I’ll remember most.\n\nWhat surprised me wasn’t the country, though. It was watching my family experience the way I travel. They’ve heard the stories for years — the solo trips, the random detours, the “I’ll figure it out when I get there” energy. But this was the first time they actually saw it. Saw me read a map in a language none of us spoke, negotiate a taxi, find the good food stall instead of the touristy one, stay calm when plans fell apart. I think they understood me a little better by the end of it. And I understood them better too — what they get tired of, what makes them light up, what “fun” actually means to each of them.\n\nThere were the expected moments, of course. The endless “where do we eat” debates that somehow took longer than the meal itself. The differing energy levels — some of us could walk all day, others tapped out by mid-afternoon and needed a sit-down and a drink. The group photos that took five tries because someone always blinked. But none of it felt like a problem. It felt like us, just in a new place.\n\nThe thing about solo travel is that it’s all yours — every memory belongs to you and only you. The thing about family travel is the opposite: every memory is shared, which means it gets retold, exaggerated, and argued about for years afterward. I used to think I preferred the first kind. After Taiwan, I’m not so sure. There’s something about turning to people who’ve known you your whole life and saying “remember that night market?” — and having them actually remember.\n\nI came into this trip wondering if traveling with family would feel like a compromise. It didn’t. It just felt like a different way of seeing the world — slower, louder, messier, and somehow fuller. Taiwan gave us the perfect place to figure that out together. And honestly? I think this is the first of many.\n\nNext time, I’m letting them pick the country."}</script></article><!--/POSTS-->
     </div>
   </div></section>
 
@@ -986,9 +1076,29 @@
     <div class="cmdk-foot"><span>↑↓ navigate</span><span>↵ select</span><span>esc close</span></div>
   </div>
 </div>
+<!-- Ask Hannah — live AI chat (powered by a Supabase Edge Function → Claude) -->
+<div class="ask" id="ask">
+  <button class="ask-fab" id="ask-fab" aria-label="Ask Hannah anything"><span class="ask-fab-dot"></span>Ask&nbsp;Hannah</button>
+  <div class="ask-panel" id="ask-panel" role="dialog" aria-label="Ask Hannah" aria-hidden="true">
+    <div class="ask-head">
+      <div>
+        <div class="ask-name">Ask Hannah</div>
+        <div class="ask-sub">a chatbot she built — answers in her voice</div>
+      </div>
+      <button class="ask-x" id="ask-x" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="ask-log" id="ask-log" aria-live="polite"></div>
+    <form class="ask-form" id="ask-form" autocomplete="off">
+      <input class="ask-in" id="ask-in" placeholder="Ask about her work, travels, anything…" aria-label="Your message" />
+      <button class="ask-send" id="ask-send" type="submit" aria-label="Send">&#8594;</button>
+    </form>
+    <div class="ask-foot">Live AI · answers in Hannah's voice · may improvise</div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.getElementById('yr').textContent=new Date().getFullYear();
@@ -1280,6 +1390,77 @@
     route();
   })();
 
+  /* travel map — warm-tinted Leaflet map, pins built from published posts */
+  (function(){
+    var el=document.getElementById('travelmap'),frame=document.querySelector('.map-frame');
+    if(!el||!window.L)return;
+    // place name -> [lat, lng]; matched against each post's Place (case-insensitive, contains)
+    var PLACES={
+      'taipei':[25.03,121.56],'taiwan':[23.7,121.0],'taichung':[24.15,120.67],'kaohsiung':[22.63,120.30],'tainan':[22.99,120.21],'hualien':[23.99,121.60],
+      'shanghai':[31.23,121.47],'beijing':[39.90,116.40],'chengdu':[30.57,104.07],'hong kong':[22.32,114.17],'macau':[22.20,113.54],
+      'manila':[14.60,120.98],'philippines':[12.88,121.77],'cebu':[10.32,123.89],'palawan':[9.84,118.74],'boracay':[11.97,121.92],'siargao':[9.86,126.06],'baguio':[16.41,120.59],
+      'tokyo':[35.68,139.69],'kyoto':[35.01,135.77],'osaka':[34.69,135.50],'seoul':[37.57,126.98],'busan':[35.18,129.08],
+      'bangkok':[13.76,100.50],'chiang mai':[18.79,98.99],'singapore':[1.35,103.82],'kuala lumpur':[3.14,101.69],'bali':[-8.34,115.09],'jakarta':[-6.21,106.85],
+      'hanoi':[21.03,105.85],'ho chi minh':[10.82,106.63],'da nang':[16.05,108.21],'siem reap':[13.36,103.86],'phnom penh':[11.56,104.93],
+      'yerevan':[40.18,44.51],'armenia':[40.07,45.04],'dubai':[25.20,55.27],'istanbul':[41.01,28.98],
+      'london':[51.51,-0.13],'paris':[48.86,2.35],'lisbon':[38.72,-9.14],'barcelona':[41.39,2.17],'rome':[41.90,12.50],
+      'new york':[40.71,-74.01],'los angeles':[34.05,-118.24],'san francisco':[37.77,-122.42]
+    };
+    function coordsFor(place){
+      var p=(place||'').toLowerCase().trim();if(!p)return null;
+      if(PLACES[p])return PLACES[p];
+      for(var k in PLACES){if(p.indexOf(k)>-1)return PLACES[k];}
+      return null;
+    }
+    // Places you've been — pinned even without a blog post yet. EDIT THIS LIST.
+    // (Posts from these cities will auto-link to the post; the rest just glow on the map.)
+    var VISITED=['Taipei','Shanghai','Manila'];
+    var map=null,built=false,pts=[],root=document.documentElement;
+    function build(){
+      if(built)return;built=true;
+      map=L.map(el,{scrollWheelZoom:false,worldCopyJump:true,minZoom:2,attributionControl:true,zoomControl:true});
+      map.setView([20,108],3);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{
+        subdomains:'abcd',maxZoom:19,attribution:'&copy; OpenStreetMap &copy; CARTO'
+      }).addTo(map);
+      var seen={};
+      function addPin(place,id){
+        var c=coordsFor(place);if(!c)return;
+        var key=c[0].toFixed(2)+','+c[1].toFixed(2);
+        if(seen[key])return;seen[key]=1;pts.push(c);
+        var icon=L.divIcon({className:'',html:'<div class="map-pin"><span class="dot"></span><span class="lab">'+
+          String(place).replace(/[<>&]/g,'')+'</span></div>',iconSize:[0,0],iconAnchor:[0,0]});
+        var mk=L.marker(c,{icon:icon,riseOnHover:true}).addTo(map);
+        if(id&&id!=='sample')mk.on('click',function(){location.hash='#post/'+id;});
+      }
+      // pins from published posts first (clickable → open the post)…
+      document.querySelectorAll('.post-data').forEach(function(s){
+        var d;try{d=JSON.parse(s.textContent);}catch(e){return;}
+        addPin(d.place||(d.meta?String(d.meta).split('·')[0].trim():''),d.id);
+      });
+      // …then any extra places you've been that don't have a post yet
+      VISITED.forEach(function(p){addPin(p,null);});
+      if(frame)frame.classList.toggle('empty',pts.length===0);
+    }
+    // recompute size + frame the pins (called a few times so tiles fully load
+    // and the map opens already zoomed to where I've been — no dragging needed)
+    function fit(){
+      if(!map)return;
+      map.invalidateSize(false);
+      if(pts.length===1)map.setView(pts[0],5,{animate:false});
+      else if(pts.length>1)map.fitBounds(pts,{padding:[58,58],maxZoom:5,animate:false});
+    }
+    function show(){
+      if(root.getAttribute('data-view')!=='travel')return;
+      build();
+      requestAnimationFrame(fit);
+      [120,360,700].forEach(function(t){setTimeout(fit,t);});
+    }
+    new MutationObserver(show).observe(root,{attributes:true,attributeFilter:['data-view']});
+    addEventListener('resize',function(){if(map&&root.getAttribute('data-view')==='travel')map.invalidateSize();});
+    show();
+  })();
+
   /* command palette */
   (function(){
     var cmdk=document.getElementById('cmdk'),input=document.getElementById('cmdk-in'),results=document.getElementById('cmdk-results');
@@ -1318,6 +1499,68 @@
       else if(e.key==='Enter'){e.preventDefault();exec();}
     });
     cmdk.onclick=function(e){if(e.target===cmdk)close();};
+  })();
+
+  /* ── Ask Hannah — chat widget → Supabase Edge Function (ask-hannah) → Claude ── */
+  (function(){
+    var wrap=document.getElementById('ask'),fab=document.getElementById('ask-fab'),
+        panel=document.getElementById('ask-panel'),xBtn=document.getElementById('ask-x'),
+        log=document.getElementById('ask-log'),form=document.getElementById('ask-form'),
+        input=document.getElementById('ask-in'),send=document.getElementById('ask-send');
+    if(!wrap)return;
+    var history=[],busy=false,greeted=false;
+    var SUGGEST=["What do you actually do?","What are you building?","Where are you travelling next?"];
+
+    function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    function linkify(s){return esc(s).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+    function scroll(){log.scrollTop=log.scrollHeight;}
+    function bubble(role,text){
+      var d=document.createElement('div');d.className='ask-msg '+(role==='me'?'me':'her');
+      d.innerHTML=linkify(text);log.appendChild(d);scroll();return d;
+    }
+    function dots(){
+      var d=document.createElement('div');d.className='ask-dots';d.innerHTML='<i></i><i></i><i></i>';
+      log.appendChild(d);scroll();return d;
+    }
+    function suggestions(){
+      var box=document.createElement('div');box.className='ask-suggest';
+      SUGGEST.forEach(function(q){
+        var b=document.createElement('button');b.type='button';b.className='ask-chip';b.textContent=q;
+        b.onclick=function(){box.remove();ask(q);};box.appendChild(b);
+      });
+      log.appendChild(box);scroll();
+    }
+    function greet(){
+      if(greeted)return;greeted=true;
+      bubble('her',"Hey — I'm a little chatbot Hannah built, and I answer in her voice. Ask me anything about her work, what she's building, or where she's off to next.");
+      suggestions();
+    }
+    function open(){wrap.classList.add('open');panel.setAttribute('aria-hidden','false');greet();setTimeout(function(){input.focus();},260);}
+    function close(){wrap.classList.remove('open');panel.setAttribute('aria-hidden','true');}
+
+    function ask(text){
+      text=(text||'').trim();if(!text||busy)return;
+      bubble('me',text);history.push({role:'user',content:text});
+      input.value='';busy=true;send.disabled=true;
+      var typing=dots();
+      var sb=window.__sb;
+      var done=function(reply,ok){
+        typing.remove();bubble('her',reply);
+        if(ok)history.push({role:'assistant',content:reply});
+        if(history.length>16)history=history.slice(-16);
+        busy=false;send.disabled=false;input.focus();
+      };
+      if(!sb||!sb.functions){done("My brain isn't wired up yet — Hannah still needs to flip the switch on the backend. Check back soon.",false);return;}
+      sb.functions.invoke('ask-hannah',{body:{messages:history}}).then(function(res){
+        var reply=res&&res.data&&res.data.reply;
+        if(res&&res.error||!reply){done("Hmm, I couldn't reach my brain just now. Mind trying that again?",false);return;}
+        done(reply,true);
+      }).catch(function(){done("Something glitched on my end — try once more?",false);});
+    }
+
+    fab.onclick=open;xBtn.onclick=close;
+    form.addEventListener('submit',function(e){e.preventDefault();ask(input.value);});
+    addEventListener('keydown',function(e){if(e.key==='Escape'&&wrap.classList.contains('open'))close();});
   })();
 </script>
 </body>

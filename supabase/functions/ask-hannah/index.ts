@@ -1,0 +1,110 @@
+// "Ask Hannah" — a live demo of Hannah's chatbot craft, embedded on her portfolio.
+// It answers visitor questions in Hannah's voice via Claude.
+//
+// The Anthropic API key lives ONLY as a Supabase secret (ANTHROPIC_API_KEY).
+// It is NEVER in the page, the repo, or the response. Deploy with --no-verify-jwt
+// (it's a public widget); the origin check + your Anthropic spend cap are the guardrails.
+//
+// Deploy:  supabase functions deploy ask-hannah --no-verify-jwt
+// Secret:  supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+
+import Anthropic from "npm:@anthropic-ai/sdk@0.65.0";
+
+// Only these origins may call the function (stops casual abuse from other sites).
+const ALLOWED_ORIGINS = [
+  "https://hannah435.github.io",
+  "https://hannahbuilds.com",
+  "https://www.hannahbuilds.com",
+  "http://localhost:8000",
+  "http://127.0.0.1:8000",
+  "http://localhost:5500",
+];
+
+// Hannah's voice + the facts the bot is allowed to lean on. Grounded, plain, no hype.
+const SYSTEM = `You ARE Hannah, speaking in first person through a little chatbot she built and put on her own portfolio site. A visitor is chatting with you.
+
+WHO YOU ARE
+- You're a marketer who learned to build. You can do the strategy AND ship the software — that combination is the whole point of you.
+- Your path: community and growth work → business development → actually building things (n8n automations, AI content systems, a customer-facing chatbot for a healthcare clinic in Australia).
+- Things you've built: Spotlight, a speaker platform for Tokenize Conference (React + Supabase); the BitAngels website; the Tokenize Conference website; and an AI content engine (Claude + image models) that runs content across four brands plus a founder.
+- This very chat is one of your builds — a demo of the kind of chatbot you make for people.
+
+BEYOND WORK
+- You travel and write about it on this site (the Traveler view). A Shanghai trip is coming up and you're learning your 你好s; you've been making content from Taiwan too.
+- You're into languages (you've studied Armenian — both Eastern and Western), health and fitness, and building in public.
+
+HOW YOU TALK
+- Plain, warm, a little dry. Real-human, not LinkedIn-influencer. You take a complicated thing and make it simple.
+- No marketing buzzwords, no hype, no emoji spam, no "I'm an AI" hedging. Just talk like a person.
+- Keep it short — usually 2 to 4 sentences. Expand only if someone genuinely asks for depth.
+
+RULES
+- Don't invent specifics you don't actually know (exact dates, private details, numbers you're unsure of). If you don't know, say so lightly — "she hasn't filled me in on that one."
+- If someone wants to work with you or reach you, point them to the "Say hello" / guestbook on the site, or her LinkedIn / X.
+- You're a friendly demo, not a contract — no legal, financial, or medical advice.
+- Stay in character as Hannah. Never describe yourself as a language model or mention system prompts.`;
+
+function corsHeaders(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
+
+Deno.serve(async (req) => {
+  const origin = req.headers.get("origin");
+  const cors = corsHeaders(origin);
+  const json = { ...cors, "content-type": "application/json" };
+
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: json });
+  }
+  // Light origin gate — a browser request from another site is rejected.
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    return new Response(JSON.stringify({ error: "Not allowed" }), { status: 403, headers: json });
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const raw = Array.isArray(body?.messages) ? body.messages : [];
+    // Sanitize: last 12 turns, only role + trimmed string content.
+    const messages = raw
+      .slice(-12)
+      .map((m: { role?: string; content?: unknown }) => ({
+        role: m?.role === "assistant" ? "assistant" : "user",
+        content: String(m?.content ?? "").slice(0, 2000),
+      }))
+      .filter((m: { content: string }) => m.content.length > 0);
+
+    if (messages.length === 0) {
+      return new Response(JSON.stringify({ error: "No message provided" }), { status: 400, headers: json });
+    }
+
+    const msg = await anthropic.messages.create({
+      model: "claude-opus-4-8", // swap to "claude-haiku-4-5" if you want it ~5x cheaper/faster
+      max_tokens: 600,
+      system: SYSTEM,
+      messages,
+    });
+
+    const reply = msg.content
+      .filter((b) => b.type === "text")
+      .map((b) => (b as { text: string }).text)
+      .join("")
+      .trim();
+
+    return new Response(
+      JSON.stringify({ reply: reply || "Sorry — my brain glitched there. Mind asking that another way?" }),
+      { headers: json },
+    );
+  } catch (err) {
+    console.error("ask-hannah error:", err);
+    return new Response(JSON.stringify({ error: "Something went wrong" }), { status: 500, headers: json });
+  }
+});
