@@ -434,6 +434,37 @@
   .new-entry:hover{box-shadow:inset 0 0 0 1px var(--red);transform:translateY(-2px);background:var(--rose);}
   .new-entry--hero{color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);}
   .new-entry--hero:hover{color:#fff;box-shadow:inset 0 0 0 1px #fff;background:rgba(255,255,255,.14);}
+  /* blog preview cards (click to open full post) */
+  .post{cursor:pointer;}
+  .post:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
+  .post-excerpt{color:#54464a;font-size:1rem;line-height:1.55;margin:0 0 16px;
+    display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .post-read{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);
+    display:inline-flex;align-items:center;gap:6px;margin-top:auto;transition:gap .25s var(--ease);}
+  .post:hover .post-read{gap:11px;}
+  .post-data{display:none;}
+  /* full-read modal (transitions.dev: modal) */
+  .postmodal{position:fixed;inset:0;z-index:9997;display:none;align-items:center;justify-content:center;padding:clamp(14px,4vw,52px);}
+  .postmodal.open{display:flex;}
+  .postmodal-scrim{position:absolute;inset:0;background:rgba(16,10,14,.55);backdrop-filter:blur(5px);opacity:0;transition:opacity var(--modal-open-dur) var(--modal-ease);}
+  .postmodal.open .postmodal-scrim{opacity:1;}
+  .postmodal.closing .postmodal-scrim{opacity:0;transition-duration:var(--modal-close-dur);}
+  .pm-close{position:absolute;top:clamp(14px,3vw,28px);right:clamp(14px,3vw,28px);z-index:3;width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(20,12,16,.6);color:#fff;font-size:1.3rem;line-height:1;backdrop-filter:blur(6px);transition:background .25s var(--ease);}
+  .pm-close:hover{background:var(--red);}
+  .pm-card{position:relative;z-index:1;width:min(660px,100%);max-height:88vh;overflow:auto;background:var(--bg);border-radius:24px;
+    box-shadow:0 60px 120px -40px rgba(0,0,0,.6);transform:scale(var(--modal-scale));opacity:0;
+    transition:transform var(--modal-open-dur) var(--modal-ease),opacity var(--modal-open-dur) var(--modal-ease);}
+  .postmodal.open .pm-card{transform:scale(1);opacity:1;}
+  .postmodal.closing .pm-card{transform:scale(var(--modal-scale-close));opacity:0;transition-duration:var(--modal-close-dur);}
+  .pm-media:empty{display:none;}
+  .pm-media img{width:100%;height:auto;display:block;max-height:62vh;object-fit:cover;}
+  .pm-body{padding:clamp(26px,4.5vw,44px);}
+  .pm-meta{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
+  .pm-title{font-family:var(--display);font-weight:600;font-size:clamp(1.7rem,3.6vw,2.4rem);letter-spacing:-.025em;line-height:1.08;margin-bottom:24px;}
+  .pm-story p{color:#352a2d;font-size:clamp(1.05rem,1.5vw,1.15rem);line-height:1.72;margin-bottom:1.15em;max-width:62ch;}
+  .pm-story p:last-child{margin-bottom:0;}
+  @media (prefers-reduced-motion:reduce){.postmodal-scrim,.pm-card{transition:none!important;}}
 </style>
 </head>
 <body>
@@ -909,9 +940,22 @@
       </div>
       <a class="new-entry" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a>
     </div>
-    <div class="blog reveal" id="blog"><!--POSTS--><article class="post"><div class="post-media"><div class="post-ph"><b>Manila, Philippines</b></div></div><div class="post-body"><div class="post-meta">Manila, Philippines &middot; Jun 2026</div><h3>Hello from the road</h3><p>This is a sample entry so you can see how a post looks. Open the Airtable app, add a row, attach a photo, write your story, and tick Published — it shows up here automatically. Delete this one whenever you like.</p></div></article><article class="post"><div class="post-media"><img src="travel-recZBCncGf41mDUxs.jpeg" alt="First Family Trip to Taiwan 🇹🇼" loading="lazy"></div><div class="post-body"><div class="post-meta">Taipei, Taiwan &middot; May 2026</div><h3>First Family Trip to Taiwan 🇹🇼</h3><p>For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked interesting. Friend trips where the itinerary was basically “say yes to everything and figure out sleep later.” I got good at moving fast, packing light, and not having to check in with anyone. So when we finally booked Taiwan as a family, I genuinely didn’t know what kind of traveler I’d be once the people I grew up with were standing next to me at the airport.<br>Turns out: a much slower one.<br>The first thing I noticed was the mornings. On my own, I’m out the door before I’ve fully woken up. With family, mornings became this whole event — someone still getting ready, someone hungry, someone wanting “just one coffee first.” At first it drove me a little crazy. By day three I kind of loved it. We weren’t rushing toward anything; we were just easing into the day together, and Taipei is a city that rewards that. You don’t have to chase it. It comes to you.<br>Taipei itself was the perfect first family destination, even if I didn’t plan it that way. It’s clean, it’s easy to get around, the MRT made everyone feel confident instead of overwhelmed, and there’s food literally everywhere — which matters when you’re traveling with people who measure a good day by what they ate. And we ate. Beef noodle soup that made everyone go quiet for a second. Soup dumplings where we all argued about the “correct” way to eat them. Bubble tea basically as a personality. Night markets where we split up, wandered, and kept circling back to each other holding new things to try. Shilin, Raohe, the smell of grilled squid and stinky tofu mixing in the air — that’s the version of Taiwan I’ll remember most.<br>What surprised me wasn’t the country, though. It was watching my family experience the way I travel. They’ve heard the stories for years — the solo trips, the random detours, the “I’ll figure it out when I get there” energy. But this was the first time they actually saw it. Saw me read a map in a language none of us spoke, negotiate a taxi, find the good food stall instead of the touristy one, stay calm when plans fell apart. I think they understood me a little better by the end of it. And I understood them better too — what they get tired of, what makes them light up, what “fun” actually means to each of them.<br>There were the expected moments, of course. The endless “where do we eat” debates that somehow took longer than the meal itself. The differing energy levels — some of us could walk all day, others tapped out by mid-afternoon and needed a sit-down and a drink. The group photos that took five tries because someone always blinked. But none of it felt like a problem. It felt like us, just in a new place.<br>The thing about solo travel is that it’s all yours — every memory belongs to you and only you. The thing about family travel is the opposite: every memory is shared, which means it gets retold, exaggerated, and argued about for years afterward. I used to think I preferred the first kind. After Taiwan, I’m not so sure. There’s something about turning to people who’ve known you your whole life and saying “remember that night market?” — and having them actually remember.<br>I came into this trip wondering if traveling with family would feel like a compromise. It didn’t. It just felt like a different way of seeing the world — slower, louder, messier, and somehow fuller. Taiwan gave us the perfect place to figure that out together. And honestly? I think this is the first of many.<br>Next time, I’m letting them pick the country.</p></div></article><!--/POSTS-->
+    <div class="blog reveal" id="blog"><!--POSTS--><article class="post" tabindex="0"><div class="post-media"><div class="post-ph"><b>Manila, Philippines</b></div></div><div class="post-body"><div class="post-meta">Manila, Philippines · Jun 2026</div><h3>Hello from the road</h3><p class="post-excerpt">This is a sample entry so you can see how a post looks. Open the Airtable app, add a row, attach a photo, write your story, and tick Published — it shows up…</p><span class="post-read">Read &#8594;</span></div><script type="application/json" class="post-data">{"title": "Hello from the road", "meta": "Manila, Philippines · Jun 2026", "img": "", "story": "This is a sample entry so you can see how a post looks. Open the Airtable app, add a row, attach a photo, write your story, and tick Published — it shows up here automatically. Delete this one whenever you like."}</script></article><article class="post" tabindex="0"><div class="post-media"><img src="travel-recZBCncGf41mDUxs.jpeg" alt="First Family Trip to Taiwan 🇹🇼" loading="lazy"></div><div class="post-body"><div class="post-meta">Taipei, Taiwan · May 2026</div><h3>First Family Trip to Taiwan 🇹🇼</h3><p class="post-excerpt">For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked…</p><span class="post-read">Read &#8594;</span></div><script type="application/json" class="post-data">{"title": "First Family Trip to Taiwan 🇹🇼", "meta": "Taipei, Taiwan · May 2026", "img": "travel-recZBCncGf41mDUxs.jpeg", "story": "For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked interesting. Friend trips where the itinerary was basically “say yes to everything and figure out sleep later.” I got good at moving fast, packing light, and not having to check in with anyone. So when we finally booked Taiwan as a family, I genuinely didn’t know what kind of traveler I’d be once the people I grew up with were standing next to me at the airport.\nTurns out: a much slower one.\nThe first thing I noticed was the mornings. On my own, I’m out the door before I’ve fully woken up. With family, mornings became this whole event — someone still getting ready, someone hungry, someone wanting “just one coffee first.” At first it drove me a little crazy. By day three I kind of loved it. We weren’t rushing toward anything; we were just easing into the day together, and Taipei is a city that rewards that. You don’t have to chase it. It comes to you.\nTaipei itself was the perfect first family destination, even if I didn’t plan it that way. It’s clean, it’s easy to get around, the MRT made everyone feel confident instead of overwhelmed, and there’s food literally everywhere — which matters when you’re traveling with people who measure a good day by what they ate. And we ate. Beef noodle soup that made everyone go quiet for a second. Soup dumplings where we all argued about the “correct” way to eat them. Bubble tea basically as a personality. Night markets where we split up, wandered, and kept circling back to each other holding new things to try. Shilin, Raohe, the smell of grilled squid and stinky tofu mixing in the air — that’s the version of Taiwan I’ll remember most.\nWhat surprised me wasn’t the country, though. It was watching my family experience the way I travel. They’ve heard the stories for years — the solo trips, the random detours, the “I’ll figure it out when I get there” energy. But this was the first time they actually saw it. Saw me read a map in a language none of us spoke, negotiate a taxi, find the good food stall instead of the touristy one, stay calm when plans fell apart. I think they understood me a little better by the end of it. And I understood them better too — what they get tired of, what makes them light up, what “fun” actually means to each of them.\nThere were the expected moments, of course. The endless “where do we eat” debates that somehow took longer than the meal itself. The differing energy levels — some of us could walk all day, others tapped out by mid-afternoon and needed a sit-down and a drink. The group photos that took five tries because someone always blinked. But none of it felt like a problem. It felt like us, just in a new place.\nThe thing about solo travel is that it’s all yours — every memory belongs to you and only you. The thing about family travel is the opposite: every memory is shared, which means it gets retold, exaggerated, and argued about for years afterward. I used to think I preferred the first kind. After Taiwan, I’m not so sure. There’s something about turning to people who’ve known you your whole life and saying “remember that night market?” — and having them actually remember.\nI came into this trip wondering if traveling with family would feel like a compromise. It didn’t. It just felt like a different way of seeing the world — slower, louder, messier, and somehow fuller. Taiwan gave us the perfect place to figure that out together. And honestly? I think this is the first of many.\nNext time, I’m letting them pick the country."}</script></article><!--/POSTS-->
     </div>
   </div></section>
+
+  <div class="postmodal" id="postmodal" aria-hidden="true">
+    <div class="postmodal-scrim" data-close></div>
+    <button class="pm-close" aria-label="Close" data-close>&times;</button>
+    <article class="pm-card">
+      <div class="pm-media" id="pm-media"></div>
+      <div class="pm-body">
+        <div class="pm-meta" id="pm-meta"></div>
+        <h2 class="pm-title" id="pm-title"></h2>
+        <div class="pm-story" id="pm-story"></div>
+      </div>
+    </article>
+  </div>
 </main>
 
 <footer id="say-hi"><div class="wrap reveal">
@@ -1152,6 +1196,40 @@
         }).join('');
       })
       .catch(function(){/* keep static fallback on any error */});
+  })();
+
+  /* travel post modal — preview cards open the full post */
+  (function(){
+    var modal=document.getElementById('postmodal'),blog=document.getElementById('blog');
+    if(!modal||!blog)return;
+    var media=document.getElementById('pm-media'),meta=document.getElementById('pm-meta'),title=document.getElementById('pm-title'),story=document.getElementById('pm-story');
+    function renderStory(text){
+      story.innerHTML='';
+      (text||'').split(/\n{2,}/).forEach(function(para){
+        if(!para.trim())return;
+        var p=document.createElement('p');
+        para.split('\n').forEach(function(ln,i){if(i)p.appendChild(document.createElement('br'));p.appendChild(document.createTextNode(ln));});
+        story.appendChild(p);
+      });
+    }
+    function openPost(d){
+      media.innerHTML='';
+      if(d.img){var im=document.createElement('img');im.src=d.img;im.alt=d.title||'';media.appendChild(im);}
+      meta.textContent=d.meta||'';title.textContent=d.title||'';renderStory(d.story);
+      modal.classList.remove('closing');modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+      document.body.style.overflow='hidden';var c=modal.querySelector('.pm-card');if(c)c.scrollTop=0;
+    }
+    function closePost(){
+      modal.setAttribute('aria-hidden','true');document.body.style.overflow='';
+      if(reduce){modal.classList.remove('open');return;}
+      modal.classList.add('closing');
+      setTimeout(function(){modal.classList.remove('open','closing');},(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--modal-close-dur'))||160));
+    }
+    function fromCard(card){var el=card&&card.querySelector('.post-data');if(!el)return;try{openPost(JSON.parse(el.textContent));}catch(e){}}
+    blog.addEventListener('click',function(e){var c=e.target.closest('.post');if(c)fromCard(c);});
+    blog.addEventListener('keydown',function(e){if(e.key==='Enter'){var c=e.target.closest('.post');if(c){e.preventDefault();fromCard(c);}}});
+    modal.addEventListener('click',function(e){if(e.target.hasAttribute('data-close'))closePost();});
+    addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))closePost();});
   })();
 
   /* command palette */
