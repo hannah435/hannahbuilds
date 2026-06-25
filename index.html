@@ -909,31 +909,7 @@
       </div>
       <a class="new-entry" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a>
     </div>
-    <div class="blog reveal" id="blog">
-      <article class="post">
-        <div class="post-media"><div class="post-ph"><b>Add a photo</b><span>travel-1.jpg</span></div><img src="travel-1.jpg" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
-        <div class="post-body">
-          <div class="post-meta">On travel &middot; 2026</div>
-          <h3>Why I keep going somewhere new</h3>
-          <p>Travel is the same instinct as everything else I do: take something big and unfamiliar, break it into pieces small enough to actually learn. A new city is just a problem I get to wander through. New places, new tools, new things to figure out — that's the whole appeal.</p>
-        </div>
-      </article>
-      <article class="post">
-        <div class="post-media"><div class="post-ph"><b>Add a photo</b><span>travel-2.jpg</span></div><img src="travel-2.jpg" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
-        <div class="post-body">
-          <div class="post-meta">[City, Country] &middot; [Month] 2026</div>
-          <h3>Learning the language by getting lost in it</h3>
-          <p>I've spent real time studying Armenian — Eastern and Western both — and nothing teaches you faster than being somewhere you have to use it. Replace this with the trip: where you went, what surprised you, the one small moment you keep thinking about.</p>
-        </div>
-      </article>
-      <article class="post">
-        <div class="post-media"><div class="post-ph"><b>Add a photo</b><span>travel-3.jpg</span></div><img src="travel-3.jpg" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
-        <div class="post-body">
-          <div class="post-meta">[City, Country] &middot; 2026</div>
-          <h3>Your next entry goes here</h3>
-          <p>Drop a photo as <b>travel-3.jpg</b> and write the story — a meal, a wrong turn that turned out right, a place you'd go back to. Add as many of these <code>&lt;article class="post"&gt;</code> blocks as you like.</p>
-        </div>
-      </article>
+    <div class="blog reveal" id="blog"><!--POSTS--><article class="post"><div class="post-media"><div class="post-ph"><b>Manila, Philippines</b></div></div><div class="post-body"><div class="post-meta">Manila, Philippines &middot; Jun 2026</div><h3>Hello from the road</h3><p>This is a sample entry so you can see how a post looks. Open the Airtable app, add a row, attach a photo, write your story, and tick Published — it shows up here automatically. Delete this one whenever you like.</p></div></article><!--/POSTS-->
     </div>
   </div></section>
 </main>
@@ -1152,7 +1128,7 @@
     var CFG={
       baseId:'appq7sYFvf7VCebn4',   // your Travel Blog base
       table:'Posts',
-      token:''            // <-- paste your READ-ONLY Airtable token (patXXXX...) here, then save
+      token:''            // posts are baked in at build time by deploy.sh — no token in the public page
     };
     if(!CFG.baseId||!CFG.token)return; // not configured -> keep the static sample entries
     var blog=document.getElementById('blog');if(!blog)return;
