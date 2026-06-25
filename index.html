@@ -443,28 +443,33 @@
     display:inline-flex;align-items:center;gap:6px;margin-top:auto;transition:gap .25s var(--ease);}
   .post:hover .post-read{gap:11px;}
   .post-data{display:none;}
-  /* full-read modal (transitions.dev: modal) */
-  .postmodal{position:fixed;inset:0;z-index:9997;display:none;align-items:center;justify-content:center;padding:clamp(14px,4vw,52px);}
-  .postmodal.open{display:flex;}
-  .postmodal-scrim{position:absolute;inset:0;background:rgba(16,10,14,.55);backdrop-filter:blur(5px);opacity:0;transition:opacity var(--modal-open-dur) var(--modal-ease);}
-  .postmodal.open .postmodal-scrim{opacity:1;}
-  .postmodal.closing .postmodal-scrim{opacity:0;transition-duration:var(--modal-close-dur);}
-  .pm-close{position:absolute;top:clamp(14px,3vw,28px);right:clamp(14px,3vw,28px);z-index:3;width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
-    background:rgba(20,12,16,.6);color:#fff;font-size:1.3rem;line-height:1;backdrop-filter:blur(6px);transition:background .25s var(--ease);}
-  .pm-close:hover{background:var(--red);}
-  .pm-card{position:relative;z-index:1;width:min(660px,100%);max-height:88vh;overflow:auto;background:var(--bg);border-radius:24px;
-    box-shadow:0 60px 120px -40px rgba(0,0,0,.6);transform:scale(var(--modal-scale));opacity:0;
-    transition:transform var(--modal-open-dur) var(--modal-ease),opacity var(--modal-open-dur) var(--modal-ease);}
-  .postmodal.open .pm-card{transform:scale(1);opacity:1;}
-  .postmodal.closing .pm-card{transform:scale(var(--modal-scale-close));opacity:0;transition-duration:var(--modal-close-dur);}
-  .pm-media:empty{display:none;}
-  .pm-media img{width:100%;height:auto;display:block;max-height:62vh;object-fit:cover;}
-  .pm-body{padding:clamp(26px,4.5vw,44px);}
-  .pm-meta{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
-  .pm-title{font-family:var(--display);font-weight:600;font-size:clamp(1.7rem,3.6vw,2.4rem);letter-spacing:-.025em;line-height:1.08;margin-bottom:24px;}
-  .pm-story p{color:#352a2d;font-size:clamp(1.05rem,1.5vw,1.15rem);line-height:1.72;margin-bottom:1.15em;max-width:62ch;}
-  .pm-story p:last-child{margin-bottom:0;}
-  @media (prefers-reduced-motion:reduce){.postmodal-scrim,.pm-card{transition:none!important;}}
+  /* full post page (in-page route #post/<id>) */
+  .postpage{display:none;padding:clamp(40px,7vh,90px) 0 var(--gut);}
+  #travelmain.post-open .travel-hero,#travelmain.post-open #bloglist{display:none;}
+  #travelmain.post-open .postpage{display:block;}
+  .postpage .wrap{max-width:760px;}
+  .post-back{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--red);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:gap .25s var(--ease);}
+  .post-back:hover{gap:12px;}
+  .pp-head{margin:26px 0 30px;}
+  .pp-meta{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
+  .pp-title{font-family:var(--display);font-weight:600;font-size:clamp(2rem,5vw,3.1rem);letter-spacing:-.03em;line-height:1.05;}
+  .pp-edit{display:none;margin-top:18px;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--red);text-decoration:none;
+    align-items:center;gap:7px;padding:9px 15px;border-radius:99px;box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .25s var(--ease);}
+  .pp-edit:hover{box-shadow:inset 0 0 0 1px var(--red);}
+  html[data-admin] .pp-edit{display:inline-flex;}
+  .pp-gallery{display:flex;flex-direction:column;gap:14px;margin-bottom:36px;}
+  .pp-gallery img{width:100%;height:auto;display:block;border-radius:16px;}
+  .pp-gallery:empty{display:none;}
+  .pp-story p{color:#352a2d;font-size:clamp(1.08rem,1.6vw,1.22rem);line-height:1.75;margin-bottom:1.2em;}
+  .pp-story p:last-child{margin-bottom:0;}
+  .pp-story h2{font-family:var(--display);font-weight:600;font-size:1.5rem;letter-spacing:-.02em;margin:1.4em 0 .5em;}
+  .pp-story h3{font-family:var(--display);font-weight:600;font-size:1.25rem;letter-spacing:-.01em;margin:1.3em 0 .4em;}
+  .pp-story ul,.pp-story ol{margin:0 0 1.2em 1.3em;color:#352a2d;font-size:clamp(1.05rem,1.5vw,1.18rem);line-height:1.7;}
+  .pp-story li{margin-bottom:.4em;}
+  .pp-story a{color:var(--red);text-underline-offset:3px;}
+  .pp-story strong{font-weight:700;color:var(--ink);}
+  .pp-story em{font-style:italic;}
+  .pp-foot{margin-top:44px;padding-top:26px;border-top:1px solid var(--line);}
 </style>
 </head>
 <body>
@@ -932,7 +937,7 @@
       <div class="cta-row" style="margin-top:30px"><a class="new-entry new-entry--hero" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a></div>
     </div>
   </div>
-  <section><div class="wrap">
+  <section id="bloglist"><div class="wrap">
     <div class="sec-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:none;">
       <div>
         <div class="kicker"><span class="idx">&#10022;</span><span class="rule"></span><span class="eyebrow">Field notes</span></div>
@@ -940,22 +945,21 @@
       </div>
       <a class="new-entry" href="https://airtable.com/appq7sYFvf7VCebn4/pagtnGhOpVD1IuDLl/form" target="_blank" rel="noopener">&#43; New entry</a>
     </div>
-    <div class="blog reveal" id="blog"><!--POSTS--><article class="post" tabindex="0"><div class="post-media"><img src="travel-recZBCncGf41mDUxs.jpeg" alt="First Family Trip to Taiwan 🇹🇼" loading="lazy"></div><div class="post-body"><div class="post-meta">Taipei, Taiwan · May 2026</div><h3>First Family Trip to Taiwan 🇹🇼</h3><p class="post-excerpt">For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked…</p><span class="post-read">Read &#8594;</span></div><script type="application/json" class="post-data">{"title": "First Family Trip to Taiwan 🇹🇼", "meta": "Taipei, Taiwan · May 2026", "img": "travel-recZBCncGf41mDUxs.jpeg", "story": "For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked interesting. Friend trips where the itinerary was basically “say yes to everything and figure out sleep later.” I got good at moving fast, packing light, and not having to check in with anyone. So when we finally booked Taiwan as a family, I genuinely didn’t know what kind of traveler I’d be once the people I grew up with were standing next to me at the airport.\nTurns out: a much slower one.\nThe first thing I noticed was the mornings. On my own, I’m out the door before I’ve fully woken up. With family, mornings became this whole event — someone still getting ready, someone hungry, someone wanting “just one coffee first.” At first it drove me a little crazy. By day three I kind of loved it. We weren’t rushing toward anything; we were just easing into the day together, and Taipei is a city that rewards that. You don’t have to chase it. It comes to you.\nTaipei itself was the perfect first family destination, even if I didn’t plan it that way. It’s clean, it’s easy to get around, the MRT made everyone feel confident instead of overwhelmed, and there’s food literally everywhere — which matters when you’re traveling with people who measure a good day by what they ate. And we ate. Beef noodle soup that made everyone go quiet for a second. Soup dumplings where we all argued about the “correct” way to eat them. Bubble tea basically as a personality. Night markets where we split up, wandered, and kept circling back to each other holding new things to try. Shilin, Raohe, the smell of grilled squid and stinky tofu mixing in the air — that’s the version of Taiwan I’ll remember most.\nWhat surprised me wasn’t the country, though. It was watching my family experience the way I travel. They’ve heard the stories for years — the solo trips, the random detours, the “I’ll figure it out when I get there” energy. But this was the first time they actually saw it. Saw me read a map in a language none of us spoke, negotiate a taxi, find the good food stall instead of the touristy one, stay calm when plans fell apart. I think they understood me a little better by the end of it. And I understood them better too — what they get tired of, what makes them light up, what “fun” actually means to each of them.\nThere were the expected moments, of course. The endless “where do we eat” debates that somehow took longer than the meal itself. The differing energy levels — some of us could walk all day, others tapped out by mid-afternoon and needed a sit-down and a drink. The group photos that took five tries because someone always blinked. But none of it felt like a problem. It felt like us, just in a new place.\nThe thing about solo travel is that it’s all yours — every memory belongs to you and only you. The thing about family travel is the opposite: every memory is shared, which means it gets retold, exaggerated, and argued about for years afterward. I used to think I preferred the first kind. After Taiwan, I’m not so sure. There’s something about turning to people who’ve known you your whole life and saying “remember that night market?” — and having them actually remember.\nI came into this trip wondering if traveling with family would feel like a compromise. It didn’t. It just felt like a different way of seeing the world — slower, louder, messier, and somehow fuller. Taiwan gave us the perfect place to figure that out together. And honestly? I think this is the first of many.\nNext time, I’m letting them pick the country."}</script></article><!--/POSTS-->
+    <div class="blog reveal" id="blog"><!--POSTS--><article class="post" tabindex="0"><div class="post-media"><img src="travel-recZBCncGf41mDUxs-0.jpeg" alt="First Family Trip to Taiwan 🇹🇼" loading="lazy"></div><div class="post-body"><div class="post-meta">Taipei, Taiwan · May 2026</div><h3>First Family Trip to Taiwan 🇹🇼</h3><p class="post-excerpt">For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked…</p><span class="post-read">Read full post &#8594;</span></div><script type="application/json" class="post-data">{"id": "recZBCncGf41mDUxs", "title": "First Family Trip to Taiwan 🇹🇼", "meta": "Taipei, Taiwan · May 2026", "photos": ["travel-recZBCncGf41mDUxs-0.jpeg", "travel-recZBCncGf41mDUxs-1.jpeg", "travel-recZBCncGf41mDUxs-2.jpeg"], "story": "For as long as I’ve been traveling, it’s always been some version of me on my own terms. Solo trips where I’d wake up with no plan and follow whatever looked interesting. Friend trips where the itinerary was basically “say yes to everything and figure out sleep later.” I got good at moving fast, packing light, and not having to check in with anyone. So when we finally booked Taiwan as a family, I genuinely didn’t know what kind of traveler I’d be once the people I grew up with were standing next to me at the airport.\nTurns out: a much slower one.\nThe first thing I noticed was the mornings. On my own, I’m out the door before I’ve fully woken up. With family, mornings became this whole event — someone still getting ready, someone hungry, someone wanting “just one coffee first.” At first it drove me a little crazy. By day three I kind of loved it. We weren’t rushing toward anything; we were just easing into the day together, and Taipei is a city that rewards that. You don’t have to chase it. It comes to you.\nTaipei itself was the perfect first family destination, even if I didn’t plan it that way. It’s clean, it’s easy to get around, the MRT made everyone feel confident instead of overwhelmed, and there’s food literally everywhere — which matters when you’re traveling with people who measure a good day by what they ate. And we ate. Beef noodle soup that made everyone go quiet for a second. Soup dumplings where we all argued about the “correct” way to eat them. Bubble tea basically as a personality. Night markets where we split up, wandered, and kept circling back to each other holding new things to try. Shilin, Raohe, the smell of grilled squid and stinky tofu mixing in the air — that’s the version of Taiwan I’ll remember most.\nWhat surprised me wasn’t the country, though. It was watching my family experience the way I travel. They’ve heard the stories for years — the solo trips, the random detours, the “I’ll figure it out when I get there” energy. But this was the first time they actually saw it. Saw me read a map in a language none of us spoke, negotiate a taxi, find the good food stall instead of the touristy one, stay calm when plans fell apart. I think they understood me a little better by the end of it. And I understood them better too — what they get tired of, what makes them light up, what “fun” actually means to each of them.\nThere were the expected moments, of course. The endless “where do we eat” debates that somehow took longer than the meal itself. The differing energy levels — some of us could walk all day, others tapped out by mid-afternoon and needed a sit-down and a drink. The group photos that took five tries because someone always blinked. But none of it felt like a problem. It felt like us, just in a new place.\nThe thing about solo travel is that it’s all yours — every memory belongs to you and only you. The thing about family travel is the opposite: every memory is shared, which means it gets retold, exaggerated, and argued about for years afterward. I used to think I preferred the first kind. After Taiwan, I’m not so sure. There’s something about turning to people who’ve known you your whole life and saying “remember that night market?” — and having them actually remember.\nI came into this trip wondering if traveling with family would feel like a compromise. It didn’t. It just felt like a different way of seeing the world — slower, louder, messier, and somehow fuller. Taiwan gave us the perfect place to figure that out together. And honestly? I think this is the first of many.\nNext time, I’m letting them pick the country."}</script></article><!--/POSTS-->
     </div>
   </div></section>
 
-  <div class="postmodal" id="postmodal" aria-hidden="true">
-    <div class="postmodal-scrim" data-close></div>
-    <button class="pm-close" aria-label="Close" data-close>&times;</button>
-    <article class="pm-card">
-      <div class="pm-media" id="pm-media"></div>
-      <div class="pm-body">
-        <div class="pm-meta" id="pm-meta"></div>
-        <h2 class="pm-title" id="pm-title"></h2>
-        <div class="pm-story" id="pm-story"></div>
-      </div>
-    </article>
-  </div>
+  <section id="postpage" class="postpage"><div class="wrap">
+    <a class="post-back" href="#travel">&#8592; All field notes</a>
+    <div class="pp-head">
+      <div class="pp-meta" id="pp-meta"></div>
+      <h1 class="pp-title" id="pp-title"></h1>
+      <a class="pp-edit" id="pp-edit" target="_blank" rel="noopener">Edit this post &#8599;</a>
+    </div>
+    <div class="pp-gallery" id="pp-gallery"></div>
+    <article class="pp-story" id="pp-story"></article>
+    <div class="pp-foot"><a class="post-back" href="#travel">&#8592; All field notes</a></div>
+  </div></section>
 </main>
 
 <footer id="say-hi"><div class="wrap reveal">
@@ -1096,7 +1100,7 @@
   function setView(v,animate){
     root.setAttribute('data-view',v);
     syncToggle(animate);
-    if(v==='travel'){try{history.replaceState(null,'','#travel');}catch(e){}scrollTop();}
+    if(v==='travel'){var tm=document.getElementById('travelmain');if(tm)tm.classList.remove('post-open');try{history.replaceState(null,'','#travel');}catch(e){}scrollTop();}
     try{localStorage.setItem('hb-view',v);}catch(e){}
   }
   document.getElementById('m-mkt').onclick=function(){setMode('marketer',true);};
@@ -1104,7 +1108,7 @@
   document.getElementById('m-trv').onclick=function(){setView('travel',true);};
   // restore state (mode text + view) without animation
   var savedMode='marketer',savedView='work';
-  try{savedMode=localStorage.getItem('hb-mode')||'marketer';savedView=(location.hash==='#travel')?'travel':(localStorage.getItem('hb-view')||'work');}catch(e){}
+  try{savedMode=localStorage.getItem('hb-mode')||'marketer';savedView=(location.hash==='#travel'||location.hash.indexOf('#post/')===0)?'travel':(localStorage.getItem('hb-view')||'work');}catch(e){}
   root.setAttribute('data-mode',savedMode);applyModeText(savedMode);
   root.setAttribute('data-view',savedView);
   requestAnimationFrame(function(){syncToggle(false);});
@@ -1198,38 +1202,56 @@
       .catch(function(){/* keep static fallback on any error */});
   })();
 
-  /* travel post modal — preview cards open the full post */
+  /* travel blog — preview cards route to a full post page (#post/<id>) */
   (function(){
-    var modal=document.getElementById('postmodal'),blog=document.getElementById('blog');
-    if(!modal||!blog)return;
-    var media=document.getElementById('pm-media'),meta=document.getElementById('pm-meta'),title=document.getElementById('pm-title'),story=document.getElementById('pm-story');
-    function renderStory(text){
-      story.innerHTML='';
-      (text||'').split(/\n{2,}/).forEach(function(para){
-        if(!para.trim())return;
-        var p=document.createElement('p');
-        para.split('\n').forEach(function(ln,i){if(i)p.appendChild(document.createElement('br'));p.appendChild(document.createTextNode(ln));});
-        story.appendChild(p);
+    var blog=document.getElementById('blog'),page=document.getElementById('postpage'),tmain=document.getElementById('travelmain');
+    if(!blog||!page)return;
+    var POSTS={};
+    function indexPosts(){POSTS={};blog.querySelectorAll('.post-data').forEach(function(s){try{var d=JSON.parse(s.textContent);if(d.id)POSTS[d.id]=d;}catch(e){}});}
+    indexPosts();
+    // minimal, safe Markdown -> HTML (escapes first)
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    function inline(t){
+      return esc(t)
+        .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+        .replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>')
+        .replace(/__([^_]+)__/g,'<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+    }
+    function mdToHtml(md){
+      var lines=String(md||'').replace(/\r/g,'').split('\n'),out=[],list=null,para=[];
+      function flushPara(){if(para.length){out.push('<p>'+para.map(inline).join('<br>')+'</p>');para=[];}}
+      function flushList(){if(list){out.push('<'+list.tag+'>'+list.items.map(function(i){return '<li>'+inline(i)+'</li>';}).join('')+'</'+list.tag+'>');list=null;}}
+      lines.forEach(function(ln){
+        var h=ln.match(/^(#{1,3})\s+(.*)$/),ul=ln.match(/^[-*]\s+(.*)$/),ol=ln.match(/^\d+\.\s+(.*)$/);
+        if(!ln.trim()){flushPara();flushList();return;}
+        if(h){flushPara();flushList();var lvl=Math.min(3,h[1].length+1);out.push('<h'+lvl+'>'+inline(h[2])+'</h'+lvl+'>');return;}
+        if(ul){flushPara();if(!list||list.tag!=='ul'){flushList();list={tag:'ul',items:[]};}list.items.push(ul[1]);return;}
+        if(ol){flushPara();if(!list||list.tag!=='ol'){flushList();list={tag:'ol',items:[]};}list.items.push(ol[1]);return;}
+        flushList();para.push(ln);
       });
+      flushPara();flushList();
+      return out.join('');
     }
-    function openPost(d){
-      media.innerHTML='';
-      if(d.img){var im=document.createElement('img');im.src=d.img;im.alt=d.title||'';media.appendChild(im);}
-      meta.textContent=d.meta||'';title.textContent=d.title||'';renderStory(d.story);
-      modal.classList.remove('closing');modal.classList.add('open');modal.setAttribute('aria-hidden','false');
-      document.body.style.overflow='hidden';var c=modal.querySelector('.pm-card');if(c)c.scrollTop=0;
+    var meta=document.getElementById('pp-meta'),title=document.getElementById('pp-title'),gallery=document.getElementById('pp-gallery'),story=document.getElementById('pp-story'),edit=document.getElementById('pp-edit');
+    function render(d){
+      meta.textContent=d.meta||'';title.textContent=d.title||'';
+      gallery.innerHTML=(d.photos||[]).map(function(src){return '<img src="'+esc(src)+'" alt="'+esc(d.title||'')+'" loading="lazy">';}).join('');
+      story.innerHTML=mdToHtml(d.story);
+      if(d.id&&d.id!=='sample'){edit.href='https://airtable.com/appq7sYFvf7VCebn4/tbl7y8DH78JcdAA3Z/'+d.id;edit.style.display='';}
+      else{edit.style.display='none';}
     }
-    function closePost(){
-      modal.setAttribute('aria-hidden','true');document.body.style.overflow='';
-      if(reduce){modal.classList.remove('open');return;}
-      modal.classList.add('closing');
-      setTimeout(function(){modal.classList.remove('open','closing');},(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--modal-close-dur'))||160));
+    function route(){
+      var m=location.hash.match(/^#post\/([A-Za-z0-9]+)/);
+      if(m&&POSTS[m[1]]){
+        if(root.getAttribute('data-view')!=='travel')setView('travel',false);
+        render(POSTS[m[1]]);tmain.classList.add('post-open');scrollTop();
+      }else{tmain.classList.remove('post-open');}
     }
-    function fromCard(card){var el=card&&card.querySelector('.post-data');if(!el)return;try{openPost(JSON.parse(el.textContent));}catch(e){}}
-    blog.addEventListener('click',function(e){var c=e.target.closest('.post');if(c)fromCard(c);});
-    blog.addEventListener('keydown',function(e){if(e.key==='Enter'){var c=e.target.closest('.post');if(c){e.preventDefault();fromCard(c);}}});
-    modal.addEventListener('click',function(e){if(e.target.hasAttribute('data-close'))closePost();});
-    addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))closePost();});
+    blog.addEventListener('click',function(e){var c=e.target.closest('.post');if(!c)return;var s=c.querySelector('.post-data');if(!s)return;try{var d=JSON.parse(s.textContent);if(d.id)location.hash='#post/'+d.id;}catch(x){}});
+    blog.addEventListener('keydown',function(e){if(e.key==='Enter'){var c=e.target.closest('.post');if(c){e.preventDefault();var s=c.querySelector('.post-data');if(s){try{var d=JSON.parse(s.textContent);if(d.id)location.hash='#post/'+d.id;}catch(x){}}}}});
+    addEventListener('hashchange',route);
+    route();
   })();
 
   /* command palette */
