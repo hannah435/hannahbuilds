@@ -361,6 +361,25 @@
   .hire-card p{color:var(--muted);font-size:.96rem;line-height:1.55;}
   .hire-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px;}
   @media(max-width:760px){.hire-grid{grid-template-columns:1fr;}}
+  /* fun: a word I'm learning */
+  .wordcard{margin-top:30px;display:inline-flex;flex-direction:column;align-items:flex-start;gap:5px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 28px;min-width:min(300px,82vw);}
+  .wc-lang{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .wc-dot{width:7px;height:7px;border-radius:99px;background:var(--red);}
+  .wc-word{font-family:var(--display);font-weight:600;font-size:clamp(2rem,5vw,2.7rem);line-height:1.04;letter-spacing:-.02em;color:var(--ink);}
+  .wc-say{font-family:var(--mono);font-size:.92rem;color:var(--red);}
+  .wc-mean{font-size:1.02rem;color:var(--muted);}
+  #wc-word,#wc-say,#wc-mean,#wc-lang{transition:opacity .16s var(--text-swap-ease),filter .16s var(--text-swap-ease),transform .16s var(--text-swap-ease);}
+  #wordcard.out #wc-word,#wordcard.out #wc-say,#wordcard.out #wc-mean,#wordcard.out #wc-lang{opacity:0;filter:blur(2px);transform:translateY(4px);}
+  .wc-next{align-self:flex-end;margin-top:10px;appearance:none;border:none;background:transparent;cursor:pointer;font-family:var(--mono);font-size:.64rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);transition:color .2s;}
+  .wc-next:hover{color:var(--ink);}
+  /* fun: live time in my cities */
+  .citytime{margin-top:20px;display:flex;align-items:center;justify-content:center;gap:9px;font-family:var(--mono);font-size:.76rem;letter-spacing:.03em;color:var(--muted);}
+  .ct-dot{width:7px;height:7px;border-radius:99px;background:#13998f;box-shadow:0 0 8px rgba(19,153,143,.55);flex:none;}
+  #ct-text{transition:opacity .25s var(--ease);}
+  #ct-text.out{opacity:0;}
+  /* fun: time-of-day ambient tint (very subtle, follows the viewer's clock) */
+  #tod{position:fixed;inset:0;pointer-events:none;z-index:9990;mix-blend-mode:soft-light;opacity:0;transition:background-color 1.4s var(--ease),opacity 1.4s var(--ease);}
+  @media (prefers-reduced-motion: reduce){#wc-word,#wc-say,#wc-mean,#wc-lang,#ct-text,#tod{transition:none!important;}}
   .wall-list{display:flex;flex-direction:column;gap:12px;max-height:360px;overflow:auto;padding-right:4px;}
   .note{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:14px;padding:16px 18px;}
   .note .who{font-weight:600;font-size:.95rem;margin-bottom:4px;}
@@ -1011,6 +1030,13 @@
       <p>I'm a learner first, and it shows up in odd places — I've spent real time studying Armenian, both Eastern and Western dialects, for the love of breaking something complicated into pieces small enough to actually learn. Same instinct behind the rest: show up, keep going, let the compounding do its thing.</p>
     </div>
     <div class="now reveal"><span class="chip active">Armenian — Eastern &amp; Western</span><span class="chip">Health &amp; fitness</span><span class="chip">Travel</span><span class="chip">Writing in public</span></div>
+    <div class="wordcard reveal" id="wordcard" aria-live="polite">
+      <div class="wc-lang"><span class="wc-dot"></span><span id="wc-lang">Mandarin</span></div>
+      <div class="wc-word" id="wc-word">你好</div>
+      <div class="wc-say" id="wc-say">nǐ hǎo</div>
+      <div class="wc-mean" id="wc-mean">&ldquo;hello&rdquo;</div>
+      <button class="wc-next" id="wc-next" aria-label="Show another word">next &#8635;</button>
+    </div>
   </div></section>
 
   <section id="hire"><div class="wrap">
@@ -1064,6 +1090,7 @@
       <div id="travelmap" role="img" aria-label="Map of places I've travelled"></div>
       <div class="map-empty" id="map-empty">Pins land here as field notes get published.</div>
     </div>
+    <div class="citytime reveal" id="citytime"><span class="ct-dot"></span><span id="ct-text">&mdash;</span></div>
   </div></section>
   <section id="bloglist"><div class="wrap">
     <div class="sec-head reveal" style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:none;">
@@ -1099,6 +1126,7 @@
   </div>
 </div></footer>
 
+<div id="tod" aria-hidden="true"></div>
 <!-- command palette -->
 <div class="cmdk" id="cmdk" aria-hidden="true">
   <div class="cmdk-box" role="dialog" aria-label="Command palette">
@@ -1490,6 +1518,59 @@
     new MutationObserver(show).observe(root,{attributes:true,attributeFilter:['data-view']});
     addEventListener('resize',function(){if(map&&root.getAttribute('data-view')==='travel')map.invalidateSize();});
     show();
+  })();
+
+  /* fun: a word I'm learning — rotating language card (edit WORDS freely) */
+  (function(){
+    var el=document.getElementById('wordcard');if(!el)return;
+    var WORDS=[
+      {lang:'Mandarin',word:'你好',say:'nǐ hǎo',mean:'“hello”'},
+      {lang:'Mandarin',word:'谢谢',say:'xièxie',mean:'“thank you”'},
+      {lang:'Armenian',word:'Բարև',say:'barev',mean:'“hello”'},
+      {lang:'Armenian',word:'Շնորհակալ',say:'shnorhakal',mean:'“thanks”'},
+      {lang:'Mandarin',word:'再见',say:'zàijiàn',mean:'“goodbye”'},
+      {lang:'Armenian',word:'Սեր',say:'ser',mean:'“love”'}
+    ];
+    var i=0,timer,
+      lg=document.getElementById('wc-lang'),wd=document.getElementById('wc-word'),
+      sy=document.getElementById('wc-say'),mn=document.getElementById('wc-mean'),
+      nx=document.getElementById('wc-next');
+    function paint(){var w=WORDS[i];lg.textContent=w.lang;wd.textContent=w.word;sy.textContent=w.say;mn.textContent=w.mean;}
+    function go(){el.classList.add('out');setTimeout(function(){i=(i+1)%WORDS.length;paint();el.classList.remove('out');},160);}
+    function schedule(){if(reduce)return;clearTimeout(timer);timer=setTimeout(function(){go();schedule();},7000);}
+    paint();
+    nx.onclick=function(){go();schedule();};
+    el.addEventListener('mouseenter',function(){clearTimeout(timer);});
+    el.addEventListener('mouseleave',schedule);
+    schedule();
+  })();
+
+  /* fun: live time in my cities — cycles current local time where I've been */
+  (function(){
+    var t=document.getElementById('ct-text');if(!t)return;
+    var CITIES=[
+      {n:'Taipei',z:'Asia/Taipei'},{n:'Bangkok',z:'Asia/Bangkok'},{n:'Manila',z:'Asia/Manila'},
+      {n:'Hong Kong',z:'Asia/Hong_Kong'},{n:'Singapore',z:'Asia/Singapore'},{n:'Kuala Lumpur',z:'Asia/Kuala_Lumpur'}
+    ];
+    var i=0;
+    function clock(z){try{return new Intl.DateTimeFormat('en-US',{timeZone:z,hour:'numeric',minute:'2-digit'}).format(new Date());}catch(e){return '';}}
+    function render(){var c=CITIES[i];t.textContent="right now it's "+clock(c.z)+" in "+c.n;}
+    render();setInterval(render,1000);
+    setInterval(function(){t.classList.add('out');setTimeout(function(){i=(i+1)%CITIES.length;render();t.classList.remove('out');},250);},4800);
+  })();
+
+  /* fun: time-of-day ambient tint — subtle, follows the visitor's local clock */
+  (function(){
+    var el=document.getElementById('tod');if(!el)return;
+    function apply(){
+      var h=new Date().getHours(),bg,op;
+      if(h>=5&&h<10){bg='#FFD7A0';op=.15;}        // morning, warm
+      else if(h>=10&&h<16){bg='#FFF1DE';op=.07;}  // midday, near-neutral
+      else if(h>=16&&h<20){bg='#FF9E6E';op=.17;}  // golden hour
+      else{bg='#1E2C57';op=.22;}                   // night, cool
+      el.style.backgroundColor=bg;el.style.opacity=op;
+    }
+    apply();setInterval(apply,600000);
   })();
 
   /* command palette */
