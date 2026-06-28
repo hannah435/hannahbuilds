@@ -1219,7 +1219,7 @@
     var f=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit',hour12:false});
     var parts=f.formatToParts(new Date()),hh=0,mm='00';
     parts.forEach(function(p){if(p.type==='hour')hh=parseInt(p.value,10);if(p.type==='minute')mm=p.value;});
-    var mood=hh<6?'probably asleep (allegedly)':hh<12?'coffee + commits':hh<18?'deep in the build':hh<23?'shipping something':'still up, still building';
+    var mood=hh<4?'still up, still building':hh<10?'probably asleep (allegedly)':hh<12?'coffee + commits':hh<18?'deep in the build':hh<23?'shipping something':'still up, still building';
     document.getElementById('clock').textContent=String(hh).padStart(2,'0')+':'+mm+' in Manila — '+mood;
   }
   tick();setInterval(tick,30000);

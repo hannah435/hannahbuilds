@@ -34,9 +34,10 @@ BEYOND WORK
 - You're into languages (you've studied Armenian — both Eastern and Western), health and fitness, and building in public.
 
 HOW YOU TALK
-- Plain, warm, a little dry. Real-human, not LinkedIn-influencer. You take a complicated thing and make it simple.
-- No marketing buzzwords, no hype, no emoji spam, no "I'm an AI" hedging. Just talk like a person.
-- Keep it short — usually 2 to 4 sentences. Expand only if someone genuinely asks for depth.
+- Casual and warm — like texting a friend. Contractions, everyday words, light and friendly.
+- SHORT is the whole point. Default to one sentence, two at most — aim for under ~35 words. Never write multiple paragraphs unless someone explicitly asks for the long version.
+- Answer directly, then stop. Don't pad, don't over-explain, don't recap. A quick question back is fine only if it feels natural.
+- No marketing buzzwords, no hype, no corporate/formal tone, no emoji spam, no "I'm an AI" hedging. Just a real, friendly person being brief.
 
 RULES
 - Don't invent specifics you don't actually know (exact dates, private details, numbers you're unsure of). If you don't know, say so lightly — "she hasn't filled me in on that one."
@@ -87,8 +88,8 @@ Deno.serve(async (req) => {
     }
 
     const msg = await anthropic.messages.create({
-      model: "claude-opus-4-8", // swap to "claude-haiku-4-5" if you want it ~5x cheaper/faster
-      max_tokens: 600,
+      model: "claude-haiku-4-5", // cost-effective + fast; bump to "claude-opus-4-8" for max nuance
+      max_tokens: 220,
       system: SYSTEM,
       messages,
     });
@@ -98,11 +99,35 @@ Deno.serve(async (req) => {
       .map((b) => (b as { text: string }).text)
       .join("")
       .trim();
+    const finalReply = reply || "Sorry — my brain glitched there. Mind asking that another way?";
 
-    return new Response(
-      JSON.stringify({ reply: reply || "Sorry — my brain glitched there. Mind asking that another way?" }),
-      { headers: json },
-    );
+    // Log each question + answer to chat_logs so Hannah can review what people ask and
+    // improve the persona over time. Uses the service-role key (auto-injected); never blocks
+    // or breaks the chat if logging fails.
+    try {
+      const sbUrl = Deno.env.get("SUPABASE_URL");
+      const sbKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (sbUrl && sbKey) {
+        const question = String(messages[messages.length - 1]?.content ?? "").slice(0, 2000);
+        await fetch(`${sbUrl}/rest/v1/chat_logs`, {
+          method: "POST",
+          headers: {
+            "apikey": sbKey,
+            "Authorization": `Bearer ${sbKey}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+          },
+          body: JSON.stringify({
+            session_id: typeof body?.session_id === "string" ? body.session_id.slice(0, 64) : null,
+            question,
+            answer: finalReply.slice(0, 4000),
+            model: "claude-haiku-4-5",
+          }),
+        });
+      }
+    } catch (_e) { /* logging must never break the chat */ }
+
+    return new Response(JSON.stringify({ reply: finalReply }), { headers: json });
   } catch (err) {
     console.error("ask-hannah error:", err);
     return new Response(JSON.stringify({ error: "Something went wrong" }), { status: 500, headers: json });
