@@ -380,6 +380,22 @@
   /* fun: time-of-day ambient tint (very subtle, follows the viewer's clock) */
   #tod{position:fixed;inset:0;pointer-events:none;z-index:9990;mix-blend-mode:soft-light;opacity:0;transition:background-color 1.4s var(--ease),opacity 1.4s var(--ease);}
   @media (prefers-reduced-motion: reduce){#wc-word,#wc-say,#wc-mean,#wc-lang,#ct-text,#tod{transition:none!important;}}
+  /* crypto events corner (marketer) */
+  .events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2.4vw,26px);}
+  .ev-card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;transition:box-shadow .3s var(--ease),transform .3s var(--ease),border-color .3s var(--ease);}
+  .ev-card--link{cursor:pointer;}
+  .ev-card--link:hover{transform:translateY(-4px);box-shadow:0 28px 48px -28px rgba(27,17,19,.44);border-color:transparent;}
+  .ev-media{aspect-ratio:16/10;overflow:hidden;}
+  .ev-media img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ev-ph{width:100%;height:100%;display:grid;place-items:center;padding:18px;background:radial-gradient(125% 130% at 80% 8%, var(--peach), var(--rose) 52%, var(--cream));}
+  .ev-ph span{font-family:var(--display);font-weight:600;font-size:1.22rem;color:var(--ink);text-align:center;line-height:1.08;letter-spacing:-.01em;}
+  .ev-body{padding:20px 22px;display:flex;flex-direction:column;gap:6px;}
+  .ev-meta{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .ev-body h3{font-family:var(--display);font-weight:600;font-size:1.22rem;letter-spacing:-.02em;}
+  .ev-link{margin-top:7px;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--red);transition:gap .25s var(--ease);}
+  .ev-card--link:hover .ev-link{gap:11px;}
+  .ev-soon{margin-top:7px;font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);}
+  @media(max-width:760px){.events-grid{grid-template-columns:1fr;}}
   .wall-list{display:flex;flex-direction:column;gap:12px;max-height:360px;overflow:auto;padding-right:4px;}
   .note{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:14px;padding:16px 18px;}
   .note .who{font-weight:600;font-size:.95rem;margin-bottom:4px;}
@@ -996,6 +1012,15 @@
     </div>
   </div></section>
 
+  <section id="events" class="only-marketer"><div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker"><span class="idx">&#9671;</span><span class="rule"></span><span class="eyebrow">Out in the wild</span></div>
+      <h2>Crypto events I've <em>shown up</em> to</h2>
+    </div>
+    <div class="prose reveal" style="margin-bottom:34px;"><p>A lot of the work happens in rooms, not docs. Here's where I've been on the ground — tap any to read my take on it.</p></div>
+    <div class="events-grid reveal" id="events-grid"></div>
+  </div></section>
+
   <section id="thread"><div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker"><span class="idx">06</span><span class="rule"></span><span class="eyebrow">Approach</span></div>
@@ -1579,6 +1604,26 @@
       el.style.backgroundColor=bg;el.style.opacity=op;
     }
     apply();setInterval(apply,600000);
+  })();
+
+  /* crypto events corner — EDIT THIS LIST: name, meta, img (optional), url (blog link; leave '' = "coming soon") */
+  (function(){
+    var grid=document.getElementById('events-grid');if(!grid)return;
+    var EVENTS=[
+      {name:'Tokenize Conference', meta:'Manila · 2026', img:'', url:''},
+      {name:'Token2049', meta:'Singapore · 2025', img:'', url:''},
+      {name:'ETHDenver', meta:'Denver · 2026', img:'', url:''}
+    ];
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    grid.innerHTML=EVENTS.map(function(e){
+      var media=e.img?('<img src="'+esc(e.img)+'" alt="'+esc(e.name)+'" loading="lazy">')
+                     :('<div class="ev-ph"><span>'+esc(e.name)+'</span></div>');
+      var link=!!e.url, tag=link?'a':'div',
+        attr=link?(' class="ev-card ev-card--link" href="'+esc(e.url)+'" target="_blank" rel="noopener"'):' class="ev-card"',
+        cta=link?'<span class="ev-link">Read my take &#8594;</span>':'<span class="ev-soon">Thoughts coming soon</span>';
+      return '<'+tag+attr+'><div class="ev-media">'+media+'</div>'+
+        '<div class="ev-body"><div class="ev-meta">'+esc(e.meta)+'</div><h3>'+esc(e.name)+'</h3>'+cta+'</div></'+tag+'>';
+    }).join('');
   })();
 
   /* command palette */
