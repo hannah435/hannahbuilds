@@ -1488,7 +1488,7 @@
     // place name -> [lat, lng]; matched against each post's Place (case-insensitive, contains)
     var PLACES={
       'taipei':[25.03,121.56],'taiwan':[23.7,121.0],'taichung':[24.15,120.67],'kaohsiung':[22.63,120.30],'tainan':[22.99,120.21],'hualien':[23.99,121.60],
-      'shanghai':[31.23,121.47],'beijing':[39.90,116.40],'chengdu':[30.57,104.07],'xiamen':[24.48,118.09],'hong kong':[22.32,114.17],'macau':[22.20,113.54],'macao':[22.20,113.54],
+      'shanghai':[31.23,121.47],'beijing':[39.90,116.40],'chengdu':[30.57,104.07],'xiamen':[24.48,118.09],'hangzhou':[30.27,120.15],'shangrao':[28.45,117.94],'wangxian valley':[28.37,117.90],'wangxian':[28.37,117.90],'hong kong':[22.32,114.17],'macau':[22.20,113.54],'macao':[22.20,113.54],
       'manila':[14.60,120.98],'philippines':[12.88,121.77],'cebu':[10.32,123.89],'palawan':[9.84,118.74],'boracay':[11.97,121.92],'siargao':[9.86,126.06],'baguio':[16.41,120.59],
       'tokyo':[35.68,139.69],'kyoto':[35.01,135.77],'osaka':[34.69,135.50],'seoul':[37.57,126.98],'busan':[35.18,129.08],
       'bangkok':[13.76,100.50],'pattaya':[12.93,100.88],'chiang mai':[18.79,98.99],'singapore':[1.35,103.82],'kuala lumpur':[3.14,101.69],'bali':[-8.34,115.09],'jakarta':[-6.21,106.85],
@@ -1505,7 +1505,7 @@
     }
     // Places you've been — pinned even without a blog post yet. EDIT THIS LIST.
     // (Posts from these cities will auto-link to the post; the rest just glow on the map.)
-    var VISITED=['Taipei','Hong Kong','Macau','Xiamen','Singapore','Ho Chi Minh','Phu Quoc','Bangkok','Pattaya','Kuala Lumpur','Palawan','Boracay'];
+    var VISITED=['Taipei','Shanghai','Hangzhou','Shangrao','Wangxian Valley','Hong Kong','Macau','Xiamen','Singapore','Ho Chi Minh','Phu Quoc','Bangkok','Pattaya','Kuala Lumpur','Palawan','Boracay'];
     var map=null,built=false,pts=[],root=document.documentElement;
     function build(){
       if(built)return;built=true;
