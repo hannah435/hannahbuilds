@@ -4623,10 +4623,14 @@
           rows.forEach(function (r) {
             var d = document.createElement('div'); d.className = 'skill-card';
             var media = r.image_url ? '<div class="skill-media"><img src="' + esc(r.image_url) + '" alt="' + esc(r.title) + '" loading="lazy"></div>' : '';
-            var dl = r.file_url ? '<a class="skill-dl" href="' + esc(r.file_url) + '">Download <span>↓</span></a>' : '';
+            var dl = r.file_url ? '<a class="skill-dl" href="' + esc(r.file_url) + '">Download the skill <span>↓</span></a>' : '';
             d.innerHTML = media + '<div class="skill-body"><h3>' + esc(r.title) + '</h3>' + (r.description ? '<p>' + esc(r.description) + '</p>' : '') + dl + '</div>';
             var mediaEl = d.querySelector('.skill-media');
-            if (mediaEl && r.image_url) mediaEl.addEventListener('click', function () { openLbx(r.image_url); });
+            if (mediaEl && r.image_url) mediaEl.addEventListener('click', function () {
+              var view = r.preview_url || r.image_url;
+              if (/\.pdf(\?|$)/i.test(view)) window.open(view, '_blank', 'noopener');
+              else openLbx(view);
+            });
             grid.appendChild(d);
           });
         })
