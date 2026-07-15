@@ -4175,7 +4175,11 @@
       if (reduce) { el.innerHTML = lines.map(function (l) { return '<div class="ln"><span class="pr">' + l.p + ' ❯</span> ' + l.t + '</div>'; }).join(''); return; }
       var li = 0, ci = 0, cur = '';
       function step() {
-        if (li >= lines.length) { return; }
+        if (li >= lines.length) {
+          // hold the finished log, then wipe and retype from the top (loop)
+          setTimeout(function () { el.innerHTML = ''; li = 0; ci = 0; step(); }, 4200);
+          return;
+        }
         var l = lines[li];
         if (ci === 0) {
           el.innerHTML += '<div class="ln" id="ln' + li + '"><span class="pr">' + l.p + ' ❯</span> <span class="tx"></span><span class="cur"></span></div>';
