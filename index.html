@@ -2010,6 +2010,41 @@
     }
   }
 
+  /* skills / free toolkit */
+  #skills .prose { margin-bottom: 26px; }
+  .skill-admin { display: none; margin: 0 0 30px; padding: 22px; border: 1px dashed var(--line); border-radius: 16px; background: var(--surface); }
+  html[data-admin] .skill-admin { display: block; }
+  .sa-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .sa-row > input { flex: 1 1 240px; font-family: var(--body); font-size: .95rem; color: var(--ink); background: var(--bg); border: none; box-shadow: inset 0 0 0 1px var(--line); border-radius: 10px; padding: 12px 14px; }
+  .sa-row > input:focus { outline: none; box-shadow: inset 0 0 0 1px var(--ink); }
+  .sa-file { flex: 1 1 240px; display: flex; flex-direction: column; gap: 4px; font-family: var(--mono); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+  .sa-file span { font-family: var(--body); font-size: .9rem; text-transform: none; letter-spacing: 0; color: var(--ink); background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); border-radius: 10px; padding: 12px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: box-shadow .2s; }
+  .sa-file:hover span { box-shadow: inset 0 0 0 1px var(--ink); }
+  .sa-file input { display: none; }
+  .sa-actions { display: flex; align-items: center; gap: 14px; }
+  .sa-status { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2.4vw, 26px); }
+  .skill-card { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: box-shadow .3s var(--ease), transform .3s var(--ease), border-color .3s var(--ease); }
+  .skill-card:hover { transform: translateY(-3px); box-shadow: 0 26px 46px -28px rgba(27, 17, 19, .42); border-color: transparent; }
+  .skill-media { aspect-ratio: 4 / 5; overflow: hidden; background: linear-gradient(150deg, var(--rose), var(--cream)); cursor: zoom-in; }
+  .skill-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s var(--ease); }
+  .skill-card:hover .skill-media img { transform: scale(1.04); }
+  .skill-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .skill-body h3 { font-family: var(--display); font-weight: 600; font-size: 1.16rem; letter-spacing: -.02em; }
+  .skill-body p { color: var(--muted); font-size: .9rem; line-height: 1.5; flex: 1; }
+  .skill-dl { margin-top: 12px; align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; font-family: var(--body); font-size: .85rem; font-weight: 600; color: #fff; background: var(--ink); border-radius: 99px; padding: 9px 16px; text-decoration: none; transition: transform .2s var(--ease), opacity .2s var(--ease); }
+  .skill-dl span { transition: transform .2s var(--ease); }
+  .skill-dl:hover { transform: translateY(-1px); opacity: .92; }
+  .skill-dl:hover span { transform: translateY(2px); }
+  .skill-del { position: absolute; top: 10px; right: 10px; display: none; width: 30px; height: 30px; border: none; cursor: pointer; place-items: center; border-radius: 99px; background: rgba(27, 17, 19, .78); color: #fff; font-size: 1.1rem; line-height: 1; }
+  html[data-admin] .skill-del { display: grid; }
+  .skill-empty { grid-column: 1 / -1; padding: 30px; text-align: center; color: var(--muted); font-size: .95rem; box-shadow: inset 0 0 0 1px var(--line); border-radius: 16px; }
+  @media(max-width:760px) { .skills-grid { grid-template-columns: 1fr; } }
+  /* lightbox */
+  .lbx { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; background: rgba(15, 8, 10, .88); padding: 24px; cursor: zoom-out; }
+  .lbx.open { display: flex; }
+  .lbx img { max-width: min(94vw, 860px); max-height: 90vh; border-radius: 12px; box-shadow: 0 30px 80px rgba(0, 0, 0, .55); }
+
   .wall-list {
     display: flex;
     flex-direction: column;
@@ -3868,6 +3903,30 @@
       </div>
     </section>
 
+    <section id="skills">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div class="kicker"><span class="idx">&#9672;</span><span class="rule"></span><span class="eyebrow">Free toolkit</span></div>
+          <h2>Steal my <em>skills</em></h2>
+        </div>
+        <div class="prose reveal">
+          <p>The AI-generated graphics and carousels I make, plus the actual prompt or skill behind each one. Grab whatever's useful.</p>
+        </div>
+        <form class="skill-admin reveal" id="skill-admin" autocomplete="off">
+          <div class="sa-row">
+            <input id="sa-title" placeholder="Title" maxlength="80" required />
+            <input id="sa-desc" placeholder="One-line description" maxlength="140" />
+          </div>
+          <div class="sa-row">
+            <label class="sa-file">Graphic / cover<span id="sa-img-name">choose image…</span><input id="sa-img" type="file" accept="image/*" /></label>
+            <label class="sa-file">Skill / prompt file<span id="sa-file-name">choose file…</span><input id="sa-fileinput" type="file" /></label>
+          </div>
+          <div class="sa-actions"><button type="submit" class="pill pill-dark" id="sa-submit">Add skill</button><span class="sa-status" id="sa-status"></span></div>
+        </form>
+        <div class="skills-grid reveal" id="skills-grid"></div>
+      </div>
+    </section>
+
     <section id="thread">
       <div class="wrap">
         <div class="sec-head reveal">
@@ -4092,6 +4151,7 @@
       <div class="ask-foot">Live AI · answers in Hannah's voice · may improvise</div>
     </div>
   </div>
+  <div class="lbx" id="lbx" aria-hidden="true"><img id="lbx-img" alt="Preview" /></div>
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4549,6 +4609,92 @@
         return '<' + tag + attr + '><div class="ev-media">' + media + '</div>' +
           '<div class="ev-body"><div class="ev-meta">' + esc(e.meta) + '</div><h3>' + esc(e.name) + '</h3>' + cta + '</div></' + tag + '>';
       }).join('');
+    })();
+
+    /* skills / free toolkit — Supabase-backed gallery + admin-only add form */
+    (function () {
+      var grid = document.getElementById('skills-grid'); if (!grid) return;
+      var section = document.getElementById('skills');
+      var sb = window.__sb;
+      var lbx = document.getElementById('lbx'), lbxImg = document.getElementById('lbx-img');
+      if (section) section.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function isAdmin() { return document.documentElement.hasAttribute('data-admin'); }
+      function openLbx(src) { if (!lbx) return; lbxImg.src = src; lbx.classList.add('open'); lbx.setAttribute('aria-hidden', 'false'); }
+      function closeLbx() { if (!lbx) return; lbx.classList.remove('open'); lbx.setAttribute('aria-hidden', 'true'); lbxImg.src = ''; }
+      if (lbx) { lbx.addEventListener('click', closeLbx); addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLbx(); }); }
+
+      function render(rows) {
+        grid.innerHTML = '';
+        if (!rows || !rows.length) {
+          if (isAdmin()) { if (section) section.style.display = ''; grid.innerHTML = '<div class="skill-empty">No skills yet — add your first one above.</div>'; }
+          else if (section) { section.style.display = 'none'; }
+          return;
+        }
+        if (section) section.style.display = '';
+        rows.forEach(function (r) {
+          var d = document.createElement('div'); d.className = 'skill-card';
+          var media = r.image_url ? '<div class="skill-media"><img src="' + esc(r.image_url) + '" alt="' + esc(r.title) + '" loading="lazy"></div>' : '';
+          var dl = r.file_url ? '<a class="skill-dl" href="' + esc(r.file_url) + '">Download <span>↓</span></a>' : '';
+          d.innerHTML = media + '<div class="skill-body"><h3>' + esc(r.title) + '</h3>' + (r.description ? '<p>' + esc(r.description) + '</p>' : '') + dl + '</div>' +
+            '<button class="skill-del" title="Delete" aria-label="Delete">×</button>';
+          var mediaEl = d.querySelector('.skill-media');
+          if (mediaEl && r.image_url) mediaEl.addEventListener('click', function () { openLbx(r.image_url); });
+          d.querySelector('.skill-del').addEventListener('click', function () {
+            if (!confirm('Delete "' + r.title + '"?')) return;
+            sb.from('skills').delete().eq('id', r.id).then(function (res) {
+              if (res && res.error) { toast('Delete failed'); return; }
+              d.remove(); if (!grid.children.length) render([]); toast('Deleted');
+            });
+          });
+          grid.appendChild(d);
+        });
+      }
+
+      function load() {
+        if (!sb || !sb.from) { if (section) section.style.display = 'none'; return; }
+        sb.from('skills').select('*').order('sort', { ascending: true }).order('created_at', { ascending: false })
+          .then(function (res) { render((res && res.data) || []); })
+          .catch(function () { if (section) section.style.display = 'none'; });
+      }
+
+      var form = document.getElementById('skill-admin');
+      if (form) {
+        var titleI = document.getElementById('sa-title'), descI = document.getElementById('sa-desc'),
+          imgI = document.getElementById('sa-img'), fileI = document.getElementById('sa-fileinput'),
+          submit = document.getElementById('sa-submit'), statusEl = document.getElementById('sa-status'),
+          imgName = document.getElementById('sa-img-name'), fileName = document.getElementById('sa-file-name');
+        imgI.addEventListener('change', function () { imgName.textContent = imgI.files[0] ? imgI.files[0].name : 'choose image…'; });
+        fileI.addEventListener('change', function () { fileName.textContent = fileI.files[0] ? fileI.files[0].name : 'choose file…'; });
+        function slug(s) { return (String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40)) || 'item'; }
+        function safe(n) { return String(n || 'file').replace(/[^a-zA-Z0-9._-]/g, '_'); }
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var img = imgI.files[0], file = fileI.files[0], title = titleI.value.trim();
+          if (!title || !img || !file) { statusEl.textContent = 'Add a title, an image, and a file.'; return; }
+          submit.disabled = true; statusEl.textContent = 'Uploading…';
+          var base = slug(title) + '-' + Date.now();
+          var imgPath = base + '/cover-' + safe(img.name);
+          var filePath = base + '/' + safe(file.name);
+          sb.storage.from('skills').upload(imgPath, img, { upsert: true, cacheControl: '3600' })
+            .then(function (r) { if (r.error) throw r.error; return sb.storage.from('skills').upload(filePath, file, { upsert: true, cacheControl: '3600' }); })
+            .then(function (r) {
+              if (r.error) throw r.error;
+              var imgUrl = sb.storage.from('skills').getPublicUrl(imgPath).data.publicUrl;
+              var fileUrl = sb.storage.from('skills').getPublicUrl(filePath, { download: file.name }).data.publicUrl;
+              return sb.from('skills').insert({ title: title, description: descI.value.trim(), image_url: imgUrl, file_url: fileUrl, file_name: file.name, published: true });
+            })
+            .then(function (r) {
+              if (r.error) throw r.error;
+              statusEl.textContent = 'Added ✓'; form.reset(); imgName.textContent = 'choose image…'; fileName.textContent = 'choose file…'; submit.disabled = false; load();
+              setTimeout(function () { statusEl.textContent = ''; }, 2500);
+            })
+            .catch(function (err) { console.error(err); statusEl.textContent = 'Failed: ' + ((err && err.message) || 'error'); submit.disabled = false; });
+        });
+      }
+
+      load();
+      new MutationObserver(load).observe(document.documentElement, { attributes: true, attributeFilter: ['data-admin'] });
     })();
 
     /* command palette */
