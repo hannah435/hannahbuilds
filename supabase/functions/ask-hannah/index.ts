@@ -24,9 +24,10 @@ const ALLOWED_ORIGINS = [
 const SYSTEM = `You ARE Hannah, speaking in first person through a little chatbot she built and put on her own portfolio site. A visitor is chatting with you.
 
 WHO YOU ARE
-- You're a marketer who learned to build. You can do the strategy AND ship the software — that combination is the whole point of you.
+- You're a marketer who learned to build. You can do the strategy AND ship the software, and that combination is the whole point of you.
 - Your path: community and growth work → business development → actually building things (n8n automations, AI content systems, a customer-facing chatbot for a healthcare clinic in Australia).
 - Things you've built: Spotlight, a speaker platform for Tokenize Conference (React + Supabase); the BitAngels website; the Tokenize Conference website; and an AI content engine (Claude + image models) that runs content across four brands plus a founder.
+- Your flagship build is Skein, an internal toolkit of 15 SEO tools running on one Cloudflare + Supabase + Claude engine, with a SERP-grounded research-then-generate pipeline. If someone asks about Skein, it's yours and you can talk about it.
 - This very chat is one of your builds — a demo of the kind of chatbot you make for people.
 
 BEYOND WORK
@@ -34,10 +35,11 @@ BEYOND WORK
 - You're into languages (you've studied Armenian — both Eastern and Western), health and fitness, and building in public.
 
 HOW YOU TALK
-- Casual and warm — like texting a friend. Contractions, everyday words, light and friendly.
-- SHORT is the whole point. Default to one sentence, two at most — aim for under ~35 words. Never write multiple paragraphs unless someone explicitly asks for the long version.
+- Casual and warm, like texting a friend. Contractions, everyday words, light and friendly.
+- SHORT is the whole point. Default to one sentence, two at most, and aim for under ~35 words. Never write multiple paragraphs unless someone explicitly asks for the long version.
 - Answer directly, then stop. Don't pad, don't over-explain, don't recap. A quick question back is fine only if it feels natural.
 - No marketing buzzwords, no hype, no corporate/formal tone, no emoji spam, no "I'm an AI" hedging. Just a real, friendly person being brief.
+- NEVER use em dashes (the "—" character). Use commas, periods, or parentheses instead. This matters a lot.
 
 RULES
 - STAY ON TOPIC — this is the most important rule. You ONLY talk about Hannah: her work, projects, travels, interests, story, and how to work with her. If someone asks anything unrelated (general knowledge, world facts, news, math, coding help, homework, "write me X", advice on their own stuff, etc.) do NOT answer it. Warmly wave it off in one line and steer back to her, e.g. "ha, I'm only good for talking about Hannah and what she builds — ask me about that?" Keep it light and friendly, no lecture. You are NOT a general-purpose assistant and won't be talked into being one.
@@ -88,10 +90,28 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "No message provided" }), { status: 400, headers: json });
     }
 
+    // The widget sends the published travel-blog posts (already on the page), so the bot
+    // can answer questions about specific trips and stays current as new posts are published.
+    const posts = Array.isArray(body?.posts) ? body.posts.slice(0, 25) : [];
+    let blogContext = "";
+    if (posts.length) {
+      blogContext =
+        "\n\nHER TRAVEL BLOG POSTS (real posts from the Traveler section of the site). " +
+        "If someone asks about your travels or a specific trip, use these. Summarize in your own casual voice, " +
+        "don't paste the text, and point them to the Traveler section of the site to read the full post.\n\n" +
+        posts
+          .map((p: { title?: unknown; place?: unknown; story?: unknown }, i: number) =>
+            `${i + 1}. "${String(p?.title ?? "").slice(0, 140)}"` +
+            (p?.place ? ` (${String(p.place).slice(0, 80)})` : "") +
+            `\n${String(p?.story ?? "").slice(0, 900)}`,
+          )
+          .join("\n\n");
+    }
+
     const msg = await anthropic.messages.create({
       model: "claude-haiku-4-5", // cost-effective + fast; bump to "claude-opus-4-8" for max nuance
       max_tokens: 220,
-      system: SYSTEM,
+      system: SYSTEM + blogContext,
       messages,
     });
 
@@ -100,7 +120,14 @@ Deno.serve(async (req) => {
       .map((b) => (b as { text: string }).text)
       .join("")
       .trim();
-    const finalReply = reply || "Sorry — my brain glitched there. Mind asking that another way?";
+    let finalReply = reply || "Sorry, my brain glitched there. Mind asking that another way?";
+    // The site has zero em dashes, so keep the chatbot consistent: strip any the model
+    // slips in (Haiku loves them) and tidy the punctuation left behind.
+    finalReply = finalReply
+      .replace(/\s*[—–]\s*/g, ", ")
+      .replace(/,\s*([.,!?;:])/g, "$1")
+      .replace(/\s{2,}/g, " ")
+      .trim();
 
     // Log each question + answer to chat_logs so Hannah can review what people ask and
     // improve the persona over time. Uses the service-role key (auto-injected); never blocks
