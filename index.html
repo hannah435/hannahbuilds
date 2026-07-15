@@ -4646,7 +4646,7 @@ ice-width, initial-scale=1.0" />
           document.querySelectorAll('.post-data').forEach(function (s) {
             var d; try { d = JSON.parse(s.textContent); } catch (e) { return; }
             if (!d || !d.title || d.id === 'sample') return;
-            posts.push({ id: d.id, title: d.title, place: d.meta || d.place || '', story: String(d.story || '').slice(0, 900) });
+            posts.push({ id: d.id, title: d.title, place: d.meta || d.place || '', story: String(d.story || '').slice(0, 4000) });
           });
         } catch (e) { }
         sb.functions.invoke('ask-hannah', { body: { messages: history, posts: posts } }).then(function (res) {

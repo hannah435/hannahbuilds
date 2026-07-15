@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
           .map((p: { id?: unknown; title?: unknown; place?: unknown; story?: unknown }, i: number) =>
             `${i + 1}. id=${String(p?.id ?? "").slice(0, 40)} | "${String(p?.title ?? "").slice(0, 140)}"` +
             (p?.place ? ` (${String(p.place).slice(0, 80)})` : "") +
-            `\n${String(p?.story ?? "").slice(0, 900)}`,
+            `\n${String(p?.story ?? "").slice(0, 4000)}`,
           )
           .join("\n\n");
     }
