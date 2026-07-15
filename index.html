@@ -2023,6 +2023,7 @@
   .sa-file input { display: none; }
   .sa-actions { display: flex; align-items: center; gap: 14px; }
   .sa-status { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+  .sa-hint { margin-top: 12px; font-family: var(--mono); font-size: .62rem; letter-spacing: .03em; color: var(--faint); }
   .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2.4vw, 26px); }
   .skill-card { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: box-shadow .3s var(--ease), transform .3s var(--ease), border-color .3s var(--ease); }
   .skill-card:hover { transform: translateY(-3px); box-shadow: 0 26px 46px -28px rgba(27, 17, 19, .42); border-color: transparent; }
@@ -3918,10 +3919,11 @@
             <input id="sa-desc" placeholder="One-line description" maxlength="140" />
           </div>
           <div class="sa-row">
-            <label class="sa-file">Graphic / cover<span id="sa-img-name">choose image…</span><input id="sa-img" type="file" accept="image/*" /></label>
-            <label class="sa-file">Skill / prompt file<span id="sa-file-name">choose file…</span><input id="sa-fileinput" type="file" /></label>
+            <label class="sa-file">Cover image<span id="sa-img-name">choose image…</span><input id="sa-img" type="file" accept="image/*" /></label>
+            <label class="sa-file">Download file · optional<span id="sa-file-name">PDF, image, prompt…</span><input id="sa-fileinput" type="file" accept="image/*,application/pdf,.pdf,.md,.txt,.zip,.docx" /></label>
           </div>
           <div class="sa-actions"><button type="submit" class="pill pill-dark" id="sa-submit">Add skill</button><span class="sa-status" id="sa-status"></span></div>
+          <p class="sa-hint">Single graphic? Just add the cover image, that becomes the download. Carousel or doc? Add a cover image plus the PDF.</p>
         </form>
         <div class="skills-grid reveal" id="skills-grid"></div>
       </div>
@@ -4665,28 +4667,29 @@
           submit = document.getElementById('sa-submit'), statusEl = document.getElementById('sa-status'),
           imgName = document.getElementById('sa-img-name'), fileName = document.getElementById('sa-file-name');
         imgI.addEventListener('change', function () { imgName.textContent = imgI.files[0] ? imgI.files[0].name : 'choose image…'; });
-        fileI.addEventListener('change', function () { fileName.textContent = fileI.files[0] ? fileI.files[0].name : 'choose file…'; });
+        fileI.addEventListener('change', function () { fileName.textContent = fileI.files[0] ? fileI.files[0].name : 'PDF, image, prompt…'; });
         function slug(s) { return (String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40)) || 'item'; }
         function safe(n) { return String(n || 'file').replace(/[^a-zA-Z0-9._-]/g, '_'); }
         form.addEventListener('submit', function (e) {
           e.preventDefault();
           var img = imgI.files[0], file = fileI.files[0], title = titleI.value.trim();
-          if (!title || !img || !file) { statusEl.textContent = 'Add a title, an image, and a file.'; return; }
+          if (!title || !img) { statusEl.textContent = 'Add a title and a cover image.'; return; }
           submit.disabled = true; statusEl.textContent = 'Uploading…';
           var base = slug(title) + '-' + Date.now();
           var imgPath = base + '/cover-' + safe(img.name);
-          var filePath = base + '/' + safe(file.name);
+          var filePath = file ? (base + '/' + safe(file.name)) : imgPath; // no file? the cover image is the download
           sb.storage.from('skills').upload(imgPath, img, { upsert: true, cacheControl: '3600' })
-            .then(function (r) { if (r.error) throw r.error; return sb.storage.from('skills').upload(filePath, file, { upsert: true, cacheControl: '3600' }); })
+            .then(function (r) { if (r.error) throw r.error; return file ? sb.storage.from('skills').upload(filePath, file, { upsert: true, cacheControl: '3600' }) : { error: null }; })
             .then(function (r) {
               if (r.error) throw r.error;
+              var dlName = file ? file.name : img.name;
               var imgUrl = sb.storage.from('skills').getPublicUrl(imgPath).data.publicUrl;
-              var fileUrl = sb.storage.from('skills').getPublicUrl(filePath, { download: file.name }).data.publicUrl;
-              return sb.from('skills').insert({ title: title, description: descI.value.trim(), image_url: imgUrl, file_url: fileUrl, file_name: file.name, published: true });
+              var fileUrl = sb.storage.from('skills').getPublicUrl(filePath, { download: dlName }).data.publicUrl;
+              return sb.from('skills').insert({ title: title, description: descI.value.trim(), image_url: imgUrl, file_url: fileUrl, file_name: dlName, published: true });
             })
             .then(function (r) {
               if (r.error) throw r.error;
-              statusEl.textContent = 'Added ✓'; form.reset(); imgName.textContent = 'choose image…'; fileName.textContent = 'choose file…'; submit.disabled = false; load();
+              statusEl.textContent = 'Added ✓'; form.reset(); imgName.textContent = 'choose image…'; fileName.textContent = 'PDF, image, prompt…'; submit.disabled = false; load();
               setTimeout(function () { statusEl.textContent = ''; }, 2500);
             })
             .catch(function (err) { console.error(err); statusEl.textContent = 'Failed: ' + ((err && err.message) || 'error'); submit.disabled = false; });
