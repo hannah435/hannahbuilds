@@ -2045,6 +2045,18 @@
   .lbx { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; background: rgba(15, 8, 10, .88); padding: 24px; cursor: zoom-out; }
   .lbx.open { display: flex; }
   .lbx img { max-width: min(94vw, 860px); max-height: 90vh; border-radius: 12px; box-shadow: 0 30px 80px rgba(0, 0, 0, .55); }
+  .lbx-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border: none; cursor: pointer; border-radius: 99px; background: rgba(255, 255, 255, .14); color: #fff; font-size: 1.9rem; line-height: 1; display: grid; place-items: center; transition: background .2s; z-index: 2; }
+  .lbx-nav:hover { background: rgba(255, 255, 255, .3); }
+  .lbx-prev { left: clamp(12px, 3vw, 30px); }
+  .lbx-next { right: clamp(12px, 3vw, 30px); }
+  .lbx-count { position: absolute; bottom: 22px; left: 0; right: 0; text-align: center; color: rgba(255, 255, 255, .82); font-family: var(--mono); font-size: .8rem; letter-spacing: .05em; }
+  /* carousel slideshow on cards */
+  .skill-media .sl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s var(--ease); }
+  .skill-media .sl.active { opacity: 1; }
+  .sl-dots { position: absolute; bottom: 10px; left: 0; right: 0; z-index: 2; display: flex; gap: 5px; justify-content: center; }
+  .sl-dots i { width: 6px; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, .55); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); cursor: pointer; transition: background .2s, transform .2s; }
+  .sl-dots i.on { background: #fff; transform: scale(1.2); }
+  @media (prefers-reduced-motion: reduce) { .skill-media .sl { transition: none; } }
 
   .wall-list {
     display: flex;
@@ -4141,7 +4153,7 @@
       <div class="ask-foot">Live AI · answers in Hannah's voice · may improvise</div>
     </div>
   </div>
-  <div class="lbx" id="lbx" aria-hidden="true"><img id="lbx-img" alt="Preview" /></div>
+  <div class="lbx" id="lbx" aria-hidden="true"><button class="lbx-nav lbx-prev" id="lbx-prev" aria-label="Previous">&#8249;</button><img id="lbx-img" alt="Preview" /><button class="lbx-nav lbx-next" id="lbx-next" aria-label="Next">&#8250;</button><div class="lbx-count" id="lbx-count"></div></div>
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4601,17 +4613,27 @@
       }).join('');
     })();
 
-    /* skills / free toolkit — read-only public gallery (managed at /admin) */
+    /* skills / free toolkit — read-only public gallery w/ auto-swipe carousel (managed at /admin) */
     (function () {
       var grid = document.getElementById('skills-grid'); if (!grid) return;
       var section = document.getElementById('skills');
       var sb = window.__sb;
-      var lbx = document.getElementById('lbx'), lbxImg = document.getElementById('lbx-img');
+      var lbx = document.getElementById('lbx'), lbxImg = document.getElementById('lbx-img'),
+        lbxPrev = document.getElementById('lbx-prev'), lbxNext = document.getElementById('lbx-next'), lbxCount = document.getElementById('lbx-count');
       if (section) section.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
       function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-      function openLbx(src) { if (!lbx) return; lbxImg.src = src; lbx.classList.add('open'); lbx.setAttribute('aria-hidden', 'false'); }
-      function closeLbx() { if (!lbx) return; lbx.classList.remove('open'); lbx.setAttribute('aria-hidden', 'true'); lbxImg.src = ''; }
-      if (lbx) { lbx.addEventListener('click', closeLbx); addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLbx(); }); }
+      /* lightbox with prev/next */
+      var lbItems = [], lbIdx = 0;
+      function lbDraw() { lbxImg.src = lbItems[lbIdx] || ''; var multi = lbItems.length > 1; if (lbxPrev) lbxPrev.style.display = multi ? '' : 'none'; if (lbxNext) lbxNext.style.display = multi ? '' : 'none'; if (lbxCount) lbxCount.textContent = multi ? (lbIdx + 1) + ' / ' + lbItems.length : ''; }
+      function lbOpen(items, idx) { if (!lbx) return; lbItems = items || []; lbIdx = idx || 0; lbDraw(); lbx.classList.add('open'); lbx.setAttribute('aria-hidden', 'false'); }
+      function lbClose() { if (!lbx) return; lbx.classList.remove('open'); lbx.setAttribute('aria-hidden', 'true'); lbxImg.src = ''; lbItems = []; }
+      function lbGo(d) { if (lbItems.length < 2) return; lbIdx = (lbIdx + d + lbItems.length) % lbItems.length; lbDraw(); }
+      if (lbx) {
+        lbx.addEventListener('click', function (e) { if (e.target === lbx) lbClose(); });
+        if (lbxPrev) lbxPrev.addEventListener('click', function (e) { e.stopPropagation(); lbGo(-1); });
+        if (lbxNext) lbxNext.addEventListener('click', function (e) { e.stopPropagation(); lbGo(1); });
+        addEventListener('keydown', function (e) { if (!lbx.classList.contains('open')) return; if (e.key === 'Escape') lbClose(); else if (e.key === 'ArrowLeft') lbGo(-1); else if (e.key === 'ArrowRight') lbGo(1); });
+      }
       function hide() { if (section) section.style.display = 'none'; }
       if (!sb || !sb.from) { hide(); return; }
       sb.from('skills').select('*').eq('published', true).order('sort', { ascending: true }).order('created_at', { ascending: false })
@@ -4621,16 +4643,35 @@
           if (section) section.style.display = '';
           grid.innerHTML = '';
           rows.forEach(function (r) {
+            var imgs = Array.isArray(r.images) ? r.images.filter(Boolean) : [];
+            if (!imgs.length && r.image_url) imgs = [r.image_url];
+            var isPdf = r.preview_url && /\.pdf(\?|$)/i.test(r.preview_url);
             var d = document.createElement('div'); d.className = 'skill-card';
-            var media = r.image_url ? '<div class="skill-media"><img src="' + esc(r.image_url) + '" alt="' + esc(r.title) + '" loading="lazy"></div>' : '';
+            var media = '';
+            if (imgs.length) {
+              var slides = imgs.map(function (u, i) { return '<img class="sl' + (i === 0 ? ' active' : '') + '" src="' + esc(u) + '" alt="' + esc(r.title) + '" loading="lazy">'; }).join('');
+              var dots = imgs.length > 1 ? '<div class="sl-dots">' + imgs.map(function (_, i) { return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</div>' : '';
+              media = '<div class="skill-media">' + slides + dots + '</div>';
+            }
             var dl = r.file_url ? '<a class="skill-dl" href="' + esc(r.file_url) + '">Download the skill <span>↓</span></a>' : '';
             d.innerHTML = media + '<div class="skill-body"><h3>' + esc(r.title) + '</h3>' + (r.description ? '<p>' + esc(r.description) + '</p>' : '') + dl + '</div>';
             var mediaEl = d.querySelector('.skill-media');
-            if (mediaEl && r.image_url) mediaEl.addEventListener('click', function () {
-              var view = r.preview_url || r.image_url;
-              if (/\.pdf(\?|$)/i.test(view)) window.open(view, '_blank', 'noopener');
-              else openLbx(view);
-            });
+            if (mediaEl) {
+              mediaEl.addEventListener('click', function () {
+                if (isPdf) { window.open(r.preview_url, '_blank', 'noopener'); return; }
+                if (imgs.length) lbOpen(imgs, 0);
+              });
+              if (imgs.length > 1 && !reduce) {
+                var sls = mediaEl.querySelectorAll('.sl'), dts = mediaEl.querySelectorAll('.sl-dots i'), ci = 0, timer;
+                function goSlide(n) { sls[ci].classList.remove('active'); if (dts[ci]) dts[ci].classList.remove('on'); ci = n; sls[ci].classList.add('active'); if (dts[ci]) dts[ci].classList.add('on'); }
+                function tick() { goSlide((ci + 1) % sls.length); }
+                function start() { clearInterval(timer); timer = setInterval(tick, 2600); }
+                mediaEl.addEventListener('mouseenter', function () { clearInterval(timer); });
+                mediaEl.addEventListener('mouseleave', start);
+                dts.forEach(function (dot, i) { dot.addEventListener('click', function (e) { e.stopPropagation(); goSlide(i); start(); }); });
+                start();
+              }
+            }
             grid.appendChild(d);
           });
         })

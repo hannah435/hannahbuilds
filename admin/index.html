@@ -61,6 +61,8 @@
   .item .meta a{color:var(--red);font-size:.74rem;font-family:var(--mono);text-decoration:none;}
   .item-del{appearance:none;border:none;cursor:pointer;background:rgba(216,30,60,.1);color:var(--red);font-weight:600;font-size:.8rem;border-radius:99px;padding:8px 14px;flex:none;transition:background .2s;}
   .item-del:hover{background:rgba(216,30,60,.18);}
+  .item-edit{appearance:none;border:none;cursor:pointer;background:var(--cream);color:var(--ink);font-weight:600;font-size:.8rem;border-radius:99px;padding:8px 14px;flex:none;transition:background .2s;}
+  .item-edit:hover{background:var(--line);}
   .empty{color:var(--faint);font-size:.9rem;text-align:center;padding:22px;}
   /* tools */
   .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
@@ -103,11 +105,11 @@
           <input id="s-desc" placeholder="One-line description" maxlength="140" />
         </div>
         <div class="row">
-          <label class="file">Carousel or graphic · image or PDF<span id="s-img-name">choose image or PDF…</span><input id="s-img" type="file" accept="image/*,application/pdf,.pdf" /></label>
+          <label class="file">Carousel slides or graphic · images or PDF<span id="s-img-name">choose images or PDF…</span><input id="s-img" type="file" accept="image/*,application/pdf,.pdf" multiple /></label>
           <label class="file">Skill / prompt · the download<span id="s-file-name">the file people download…</span><input id="s-file" type="file" /></label>
         </div>
-        <div class="actions"><button class="btn btn-dark" type="submit" id="s-submit">Add skill</button><span class="status" id="s-status"></span></div>
-        <p class="hint">The graphic or carousel (PDF) shows on the card and opens when clicked. The skill/prompt file is what people download. PDFs get a first-slide thumbnail automatically.</p>
+        <div class="actions"><button class="btn btn-dark" type="submit" id="s-submit">Add skill</button><button class="btn btn-ghost" type="button" id="s-cancel" style="display:none;">Cancel</button><span class="status" id="s-status"></span></div>
+        <p class="hint">Upload all the carousel slides (they auto-swipe on the card), a single graphic, or one PDF. The skill/prompt file is the download. Editing? Leave the file fields empty to keep the current ones.</p>
       </form>
       <div class="list" id="skill-list"></div>
     </div>
@@ -164,6 +166,7 @@
   });
 
   /* skills manager */
+  var editingId = null, startEdit;
   function loadSkills(){
     var list=document.getElementById('skill-list');
     sb.from('skills').select('*').order('created_at',{ascending:false}).then(function(res){
@@ -171,11 +174,14 @@
       if(!rows.length){ list.innerHTML='<div class="empty">No skills yet. Add your first one above.</div>'; return; }
       list.innerHTML='';
       rows.forEach(function(r){
+        var thumb=r.image_url||(Array.isArray(r.images)&&r.images[0])||'';
+        var slides=(Array.isArray(r.images)&&r.images.length>1)?(' · '+r.images.length+' slides'):'';
         var el=document.createElement('div'); el.className='item';
-        el.innerHTML=(r.image_url?'<img src="'+esc(r.image_url)+'" alt="">':'<div style="width:52px;height:66px;border-radius:8px;background:var(--rose);flex:none;"></div>')+
-          '<div class="meta"><b>'+esc(r.title)+'</b><small>'+esc(r.description||'')+'</small>'+
+        el.innerHTML=(thumb?'<img src="'+esc(thumb)+'" alt="">':'<div style="width:52px;height:66px;border-radius:8px;background:var(--rose);flex:none;"></div>')+
+          '<div class="meta"><b>'+esc(r.title)+'</b><small>'+esc(r.description||'')+slides+'</small>'+
           (r.file_url?'<a href="'+esc(r.file_url)+'" target="_blank" rel="noopener">download ↓</a>':'')+'</div>'+
-          '<button class="item-del">Delete</button>';
+          '<button class="item-edit">Edit</button><button class="item-del">Delete</button>';
+        el.querySelector('.item-edit').onclick=function(){ startEdit(r); };
         el.querySelector('.item-del').onclick=function(){
           if(!confirm('Delete "'+r.title+'"?'))return;
           sb.from('skills').delete().eq('id',r.id).then(function(d){
@@ -192,12 +198,15 @@
     var titleI=document.getElementById('s-title'), descI=document.getElementById('s-desc'),
         imgI=document.getElementById('s-img'), fileI=document.getElementById('s-file'),
         submit=document.getElementById('s-submit'), statusEl=document.getElementById('s-status'),
-        imgName=document.getElementById('s-img-name'), fileName=document.getElementById('s-file-name');
-    imgI.addEventListener('change',function(){ imgName.textContent=imgI.files[0]?imgI.files[0].name:'choose image or PDF…'; });
-    fileI.addEventListener('change',function(){ fileName.textContent=fileI.files[0]?fileI.files[0].name:'the file people download…'; });
+        imgName=document.getElementById('s-img-name'), fileName=document.getElementById('s-file-name'),
+        cancelBtn=document.getElementById('s-cancel'), formEl=document.getElementById('skill-form');
+    var IMG_HINT='choose images or PDF…', FILE_HINT='the file people download…';
+    imgI.addEventListener('change',function(){ var n=imgI.files.length; imgName.textContent=n>1?(n+' images selected'):(n===1?imgI.files[0].name:(editingId?'keep current':IMG_HINT)); });
+    fileI.addEventListener('change',function(){ fileName.textContent=fileI.files[0]?fileI.files[0].name:(editingId?'keep current':FILE_HINT); });
     function slug(s){ return (String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40))||'item'; }
     function safe(n){ return String(n||'file').replace(/[^a-zA-Z0-9._-]/g,'_'); }
     function ext(n){ var m=String(n||'').match(/\.[a-zA-Z0-9]+$/); return m?m[0].toLowerCase():'.png'; }
+    function pad2(i){ return (i<10?'0':'')+i; }
     function pub(p){ return sb.storage.from('skills').getPublicUrl(p).data.publicUrl; }
     function pubDl(p,name){ return sb.storage.from('skills').getPublicUrl(p,{download:name}).data.publicUrl; }
     async function pdfThumb(file){
@@ -212,25 +221,56 @@
       return await new Promise(function(res){ canvas.toBlob(res,'image/jpeg',0.85); });
     }
     async function up(path,body,type){ var r=await sb.storage.from('skills').upload(path,body,{upsert:true,cacheControl:'3600',contentType:type}); if(r.error) throw r.error; return path; }
-    document.getElementById('skill-form').addEventListener('submit',async function(e){
+    // upload the carousel/graphic: a single PDF, or one or more image slides
+    async function uploadContent(files, base){
+      var onlyPdf = files.length===1 && (/pdf/i.test(files[0].type)||/\.pdf$/i.test(files[0].name));
+      if(onlyPdf){
+        var pdf=files[0];
+        statusEl.textContent='Rendering carousel…';
+        var thumbBlob=await pdfThumb(pdf);
+        statusEl.textContent='Uploading…';
+        var thumbPath=await up(base+'/thumb.jpg', thumbBlob, 'image/jpeg');
+        var pdfPath=await up(base+'/'+safe(pdf.name), pdf, 'application/pdf');
+        return { image_url:pub(thumbPath), preview_url:pub(pdfPath), images:[] };
+      }
+      var arr=Array.prototype.slice.call(files).sort(function(a,b){ return String(a.name).localeCompare(String(b.name),undefined,{numeric:true}); });
+      var urls=[];
+      for(var i=0;i<arr.length;i++){ statusEl.textContent='Uploading slide '+(i+1)+'/'+arr.length+'…'; var p=await up(base+'/slide-'+pad2(i+1)+ext(arr[i].name), arr[i], arr[i].type||'image/png'); urls.push(pub(p)); }
+      return { image_url:urls[0]||'', preview_url:'', images:urls };
+    }
+
+    startEdit=function(r){
+      editingId=r.id;
+      titleI.value=r.title||''; descI.value=r.description||''; imgI.value=''; fileI.value='';
+      imgName.textContent='keep current'; fileName.textContent='keep current';
+      submit.textContent='Save changes'; submit.disabled=false; if(cancelBtn) cancelBtn.style.display='';
+      statusEl.textContent='Editing — leave file fields empty to keep them.';
+      formEl.scrollIntoView({behavior:'smooth',block:'center'}); titleI.focus();
+    };
+    function resetForm(){
+      editingId=null; formEl.reset();
+      imgName.textContent=IMG_HINT; fileName.textContent=FILE_HINT;
+      submit.textContent='Add skill'; submit.disabled=false; if(cancelBtn) cancelBtn.style.display='none';
+    }
+    if(cancelBtn) cancelBtn.onclick=function(){ resetForm(); statusEl.textContent=''; };
+
+    formEl.addEventListener('submit',async function(e){
       e.preventDefault();
-      var content=imgI.files[0], skill=fileI.files[0], title=titleI.value.trim();
-      if(!title||!content||!skill){ statusEl.textContent='Add a title, the carousel/graphic, and the skill file.'; return; }
+      var files=imgI.files, skill=fileI.files[0], title=titleI.value.trim();
+      if(!title){ statusEl.textContent='Add a title.'; return; }
+      if(!editingId && (!files.length || !skill)){ statusEl.textContent='Add the carousel/graphic and the skill file.'; return; }
       submit.disabled=true; statusEl.textContent='Uploading…';
       try{
         var base=slug(title)+'-'+Date.now();
-        var isPdf=/pdf/i.test(content.type)||/\.pdf$/i.test(content.name);
-        if(isPdf) statusEl.textContent='Rendering carousel…';
-        var thumbBlob = isPdf ? await pdfThumb(content) : content;
-        statusEl.textContent='Uploading…';
-        var thumbPath = await up(base+'/thumb'+(isPdf?'.jpg':ext(content.name)), thumbBlob, isPdf?'image/jpeg':(content.type||'image/png'));
-        var previewPath = thumbPath;
-        if(isPdf) previewPath = await up(base+'/'+safe(content.name), content, 'application/pdf');
-        var skillPath = await up(base+'/skill-'+safe(skill.name), skill, skill.type||undefined);
-        var ins=await sb.from('skills').insert({title:title, description:descI.value.trim(), image_url:pub(thumbPath), preview_url:pub(previewPath), file_url:pubDl(skillPath,skill.name), file_name:skill.name, published:true});
-        if(ins.error) throw ins.error;
-        statusEl.textContent='Added ✓'; document.getElementById('skill-form').reset();
-        imgName.textContent='choose image or PDF…'; fileName.textContent='the file people download…'; submit.disabled=false; loadSkills();
+        var patch={ title:title, description:descI.value.trim() };
+        if(files.length){ var c=await uploadContent(files, base); patch.image_url=c.image_url; patch.preview_url=c.preview_url; patch.images=c.images; }
+        if(skill){ var sp=await up(base+'/skill-'+safe(skill.name), skill, skill.type||undefined); patch.file_url=pubDl(sp,skill.name); patch.file_name=skill.name; }
+        var res;
+        if(editingId){ res=await sb.from('skills').update(patch).eq('id',editingId); }
+        else { patch.published=true; res=await sb.from('skills').insert(patch); }
+        if(res.error) throw res.error;
+        var saved=!!editingId; resetForm(); loadSkills();
+        statusEl.textContent=saved?'Saved ✓':'Added ✓';
         setTimeout(function(){ statusEl.textContent=''; },2500);
       }catch(err){ console.error(err); statusEl.textContent='Failed: '+((err&&err.message)||'error'); submit.disabled=false; }
     });
