@@ -3083,6 +3083,36 @@ ice-width, initial-scale=1.0" />
     color: var(--red);
   }
 
+  .ask-postbtn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: -3px;
+    font-family: var(--body);
+    font-size: .82rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--ink);
+    border-radius: 99px;
+    padding: 8px 15px;
+    text-decoration: none;
+    transition: transform .2s var(--ease), opacity .2s var(--ease);
+  }
+
+  .ask-postbtn span {
+    transition: transform .2s var(--ease);
+  }
+
+  .ask-postbtn:hover {
+    transform: translateY(-1px);
+    opacity: .92;
+  }
+
+  .ask-postbtn:hover span {
+    transform: translateX(3px);
+  }
+
   .ask-suggest {
     display: flex;
     flex-wrap: wrap;
@@ -4597,8 +4627,15 @@ ice-width, initial-scale=1.0" />
         input.value = ''; busy = true; send.disabled = true;
         var typing = dots();
         var sb = window.__sb;
-        var done = function (reply, ok) {
+        var done = function (reply, ok, postId) {
           typing.remove(); bubble('her', reply);
+          if (postId) {
+            var a = document.createElement('a');
+            a.className = 'ask-postbtn'; a.href = '#post/' + postId;
+            a.innerHTML = 'Read the full post <span>→</span>';
+            a.onclick = function () { close(); };
+            log.appendChild(a); scroll();
+          }
           if (ok) history.push({ role: 'assistant', content: reply });
           if (history.length > 16) history = history.slice(-16);
           busy = false; send.disabled = false; input.focus();
@@ -4609,13 +4646,19 @@ ice-width, initial-scale=1.0" />
           document.querySelectorAll('.post-data').forEach(function (s) {
             var d; try { d = JSON.parse(s.textContent); } catch (e) { return; }
             if (!d || !d.title || d.id === 'sample') return;
-            posts.push({ title: d.title, place: d.meta || d.place || '', story: String(d.story || '').slice(0, 900) });
+            posts.push({ id: d.id, title: d.title, place: d.meta || d.place || '', story: String(d.story || '').slice(0, 900) });
           });
         } catch (e) { }
         sb.functions.invoke('ask-hannah', { body: { messages: history, posts: posts } }).then(function (res) {
           var reply = res && res.data && res.data.reply;
           if (res && res.error || !reply) { done("Hmm, I couldn't reach my brain just now. Mind trying that again?", false); return; }
-          done(reply, true);
+          var pid = null, mm = String(reply).match(/\[\[post:([^\]]+)\]\]/);
+          if (mm) {
+            reply = reply.replace(mm[0], '').trim();
+            var raw = mm[1].trim();
+            for (var i = 0; i < posts.length; i++) { if (posts[i].id === raw) { pid = raw; break; } }
+          }
+          done(reply, true, pid);
         }).catch(function () { done("Something glitched on my end, try once more?", false); });
       }
 

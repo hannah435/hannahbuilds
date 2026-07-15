@@ -97,11 +97,12 @@ Deno.serve(async (req) => {
     if (posts.length) {
       blogContext =
         "\n\nHER TRAVEL BLOG POSTS (real posts from the Traveler section of the site). " +
-        "If someone asks about your travels or a specific trip, use these. Summarize in your own casual voice, " +
-        "don't paste the text, and point them to the Traveler section of the site to read the full post.\n\n" +
+        "If someone asks about your travels or a specific trip, use these: summarize in your own casual voice, don't paste the text. " +
+        "When your answer is about ONE specific post, end your reply with that post's marker on its own line, written exactly like [[post:ID]] using the id shown for it. " +
+        "Only add the marker when you're genuinely talking about that post; never explain it, and use it at most once. Don't tell people to 'check the Traveler section' in words, the marker becomes a button that does that.\n\n" +
         posts
-          .map((p: { title?: unknown; place?: unknown; story?: unknown }, i: number) =>
-            `${i + 1}. "${String(p?.title ?? "").slice(0, 140)}"` +
+          .map((p: { id?: unknown; title?: unknown; place?: unknown; story?: unknown }, i: number) =>
+            `${i + 1}. id=${String(p?.id ?? "").slice(0, 40)} | "${String(p?.title ?? "").slice(0, 140)}"` +
             (p?.place ? ` (${String(p.place).slice(0, 80)})` : "") +
             `\n${String(p?.story ?? "").slice(0, 900)}`,
           )
