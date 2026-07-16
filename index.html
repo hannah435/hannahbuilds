@@ -4622,6 +4622,8 @@
         lbxPrev = document.getElementById('lbx-prev'), lbxNext = document.getElementById('lbx-next'), lbxCount = document.getElementById('lbx-count');
       if (section) section.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
       function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      // lightweight card thumbnail via Supabase image resizing; lightbox uses the full-res original
+      function thumb(u) { if (!u || u.indexOf('/object/public/') === -1) return u; return u.replace('/object/public/', '/render/image/public/') + (u.indexOf('?') > -1 ? '&' : '?') + 'width=680&resize=contain&quality=80'; }
       /* lightbox with prev/next */
       var lbItems = [], lbIdx = 0;
       function lbDraw() { lbxImg.src = lbItems[lbIdx] || ''; var multi = lbItems.length > 1; if (lbxPrev) lbxPrev.style.display = multi ? '' : 'none'; if (lbxNext) lbxNext.style.display = multi ? '' : 'none'; if (lbxCount) lbxCount.textContent = multi ? (lbIdx + 1) + ' / ' + lbItems.length : ''; }
@@ -4649,7 +4651,7 @@
             var d = document.createElement('div'); d.className = 'skill-card';
             var media = '';
             if (imgs.length) {
-              var slides = imgs.map(function (u, i) { return '<img class="sl' + (i === 0 ? ' active' : '') + '" src="' + esc(u) + '" alt="' + esc(r.title) + '" loading="lazy">'; }).join('');
+              var slides = imgs.map(function (u, i) { return '<img class="sl' + (i === 0 ? ' active' : '') + '" src="' + esc(thumb(u)) + '" alt="' + esc(r.title) + '" loading="lazy">'; }).join('');
               var dots = imgs.length > 1 ? '<div class="sl-dots">' + imgs.map(function (_, i) { return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</div>' : '';
               media = '<div class="skill-media">' + slides + dots + '</div>';
             }
