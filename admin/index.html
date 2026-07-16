@@ -64,6 +64,16 @@
   .item-edit{appearance:none;border:none;cursor:pointer;background:var(--cream);color:var(--ink);font-weight:600;font-size:.8rem;border-radius:99px;padding:8px 14px;flex:none;transition:background .2s;}
   .item-edit:hover{background:var(--line);}
   .empty{color:var(--faint);font-size:.9rem;text-align:center;padding:22px;}
+  /* analytics */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  @media(max-width:640px){.stats{grid-template-columns:1fr;}}
+  .stat-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-family:var(--display);font-weight:600;font-size:1.08rem;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .stat-h span{font-family:var(--mono);font-size:1.35rem;color:var(--red);}
+  .stat-list{display:flex;flex-direction:column;gap:8px;}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.92rem;}
+  .stat-row b{font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .stat-row span{font-family:var(--mono);font-weight:700;color:var(--ink);flex:none;background:var(--cream);border-radius:99px;padding:3px 12px;}
+  .stat-empty{color:var(--faint);font-size:.85rem;}
   /* tools */
   .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
   .tool{display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:18px;text-decoration:none;color:inherit;transition:transform .2s,box-shadow .2s,border-color .2s;}
@@ -95,6 +105,21 @@
   <div id="dash" class="hidden">
     <h1>Backend</h1>
     <p class="lede">Manage what shows on the site.</p>
+
+    <div class="card">
+      <h2>Analytics</h2>
+      <div class="sub">Skill downloads and blog views. Refreshes each time you open this page.</div>
+      <div class="stats">
+        <div class="stat-col">
+          <div class="stat-h">Skill downloads<span id="dl-total">0</span></div>
+          <div id="dl-list" class="stat-list"></div>
+        </div>
+        <div class="stat-col">
+          <div class="stat-h">Blog views<span id="pv-total">0</span></div>
+          <div id="pv-list" class="stat-list"></div>
+        </div>
+      </div>
+    </div>
 
     <div class="card">
       <h2>Toolkit skills</h2>
@@ -142,7 +167,7 @@
     authEl.classList.add('hidden'); dashEl.classList.remove('hidden');
     topR.innerHTML='<span class="who">'+esc(email)+'</span><button class="btn btn-ghost" id="logout">Log out</button>';
     document.getElementById('logout').onclick=function(){ sb.auth.signOut().then(function(){ showLoggedOut(); }); };
-    loadSkills();
+    loadSkills(); loadAnalytics();
   }
   function apply(session){
     var email=session&&session.user&&(session.user.email||'').toLowerCase();
@@ -164,6 +189,29 @@
       msg.textContent=r.error?('Error: '+r.error.message):'Check your email for the login link.';
     });
   });
+
+  /* analytics */
+  function loadAnalytics(){
+    if(!sb||!sb.from) return;
+    sb.from('events').select('kind,ref,label,created_at').then(function(res){
+      var rows=(res&&res.data)||[], dl={}, pv={};
+      rows.forEach(function(e){
+        var bag = e.kind==='skill_download'?dl:(e.kind==='post_view'?pv:null);
+        if(!bag) return;
+        if(!bag[e.ref]) bag[e.ref]={n:0,label:e.label||e.ref,t:''};
+        bag[e.ref].n++;
+        if((e.created_at||'')>bag[e.ref].t){ bag[e.ref].t=e.created_at||''; bag[e.ref].label=e.label||bag[e.ref].label; }
+      });
+      draw('dl-list','dl-total',dl); draw('pv-list','pv-total',pv);
+    });
+    function draw(listId,totalId,bag){
+      var arr=Object.keys(bag).map(function(k){return bag[k];}).sort(function(a,b){return b.n-a.n;});
+      var total=arr.reduce(function(s,x){return s+x.n;},0);
+      var tEl=document.getElementById(totalId); if(tEl) tEl.textContent=total;
+      var el=document.getElementById(listId); if(!el) return;
+      el.innerHTML = arr.length ? arr.map(function(x){return '<div class="stat-row"><b>'+esc(x.label)+'</b><span>'+x.n+'</span></div>';}).join('') : '<div class="stat-empty">Nothing yet.</div>';
+    }
+  }
 
   /* skills manager */
   var editingId = null, startEdit;

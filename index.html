@@ -4447,7 +4447,14 @@
         var m = location.hash.match(/^#post\/([A-Za-z0-9]+)/);
         if (m && POSTS[m[1]]) {
           if (root.getAttribute('data-view') !== 'travel') setView('travel', false);
-          render(POSTS[m[1]]); tmain.classList.add('post-open'); scrollTop();
+          var d = POSTS[m[1]];
+          render(d); tmain.classList.add('post-open'); scrollTop();
+          try {
+            if (window.__sb && d.id && d.id !== 'sample' && !sessionStorage.getItem('hb-view-' + d.id)) {
+              sessionStorage.setItem('hb-view-' + d.id, '1');
+              window.__sb.from('events').insert({ kind: 'post_view', ref: String(d.id), label: d.title || '' });
+            }
+          } catch (e) { }
         } else { tmain.classList.remove('post-open'); }
       }
       blog.addEventListener('click', function (e) { var c = e.target.closest('.post'); if (!c) return; var s = c.querySelector('.post-data'); if (!s) return; try { var d = JSON.parse(s.textContent); if (d.id) location.hash = '#post/' + d.id; } catch (x) { } });
@@ -4674,6 +4681,8 @@
                 start();
               }
             }
+            var dlEl = d.querySelector('.skill-dl');
+            if (dlEl) dlEl.addEventListener('click', function () { try { sb.from('events').insert({ kind: 'skill_download', ref: String(r.id), label: r.title || '' }); } catch (e) { } });
             grid.appendChild(d);
           });
         })
