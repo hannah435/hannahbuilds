@@ -4452,7 +4452,7 @@
           try {
             if (window.__sb && d.id && d.id !== 'sample' && !sessionStorage.getItem('hb-view-' + d.id)) {
               sessionStorage.setItem('hb-view-' + d.id, '1');
-              window.__sb.from('events').insert({ kind: 'post_view', ref: String(d.id), label: d.title || '' });
+              window.__sb.from('events').insert({ kind: 'post_view', ref: String(d.id), label: d.title || '' }).then(function () { }, function () { });
             }
           } catch (e) { }
         } else { tmain.classList.remove('post-open'); }
@@ -4682,7 +4682,7 @@
               }
             }
             var dlEl = d.querySelector('.skill-dl');
-            if (dlEl) dlEl.addEventListener('click', function () { try { sb.from('events').insert({ kind: 'skill_download', ref: String(r.id), label: r.title || '' }); } catch (e) { } });
+            if (dlEl) dlEl.addEventListener('click', function () { try { sb.from('events').insert({ kind: 'skill_download', ref: String(r.id), label: r.title || '' }).then(function () { }, function () { }); } catch (e) { } });
             grid.appendChild(d);
           });
         })
