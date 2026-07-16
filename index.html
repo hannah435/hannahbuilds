@@ -2027,7 +2027,7 @@
   .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2.4vw, 26px); }
   .skill-card { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: box-shadow .3s var(--ease), transform .3s var(--ease), border-color .3s var(--ease); }
   .skill-card:hover { transform: translateY(-3px); box-shadow: 0 26px 46px -28px rgba(27, 17, 19, .42); border-color: transparent; }
-  .skill-media { aspect-ratio: 4 / 5; overflow: hidden; background: linear-gradient(150deg, var(--rose), var(--cream)); cursor: zoom-in; }
+  .skill-media { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: linear-gradient(150deg, var(--rose), var(--cream)); cursor: zoom-in; }
   .skill-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s var(--ease); }
   .skill-card:hover .skill-media img { transform: scale(1.04); }
   .skill-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
