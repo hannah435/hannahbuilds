@@ -885,151 +885,111 @@
 
   /* work cards */
   /* work, alternating case-study rows */
-  .work-list {
+  /* work — project deck */
+  .deck {
+    position: relative;
+  }
+
+  .deck-stage {
+    position: relative;
+    height: clamp(392px, 47vw, 452px);
+    perspective: 1500px;
+  }
+
+  .dcard {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(400px, 88vw);
+    min-height: 336px;
     display: flex;
     flex-direction: column;
-    gap: clamp(44px, 7vw, 92px);
-  }
-
-  .proj {
-    display: grid;
-    grid-template-columns: 1.06fr .94fr;
-    gap: clamp(28px, 5vw, 68px);
-    align-items: center;
-  }
-
-  .proj-media {
-    order: 1;
-  }
-
-  .proj-body {
-    order: 2;
-  }
-
-  .proj:nth-child(even) .proj-media {
-    order: 2;
-  }
-
-  .proj:nth-child(even) .proj-body {
-    order: 1;
-  }
-
-  @media (max-width:760px) {
-    .proj {
-      grid-template-columns: 1fr;
-      gap: 22px;
-    }
-
-    .proj .proj-media,
-    .proj:nth-child(even) .proj-media {
-      order: 1;
-    }
-
-    .proj .proj-body,
-    .proj:nth-child(even) .proj-body {
-      order: 2;
-    }
-  }
-
-  .shot {
-    display: block;
-    border-radius: 15px;
-    overflow: hidden;
     background: #fff;
-    text-decoration: none;
     border: 1px solid var(--line);
-    box-shadow: 0 34px 64px -38px rgba(122, 15, 34, .42);
-    transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+    border-radius: 22px;
+    padding: 26px 28px 24px;
+    box-shadow: 0 30px 60px -36px rgba(122, 15, 34, .4);
+    transition: transform .55s var(--ease), opacity .45s var(--ease), box-shadow .45s var(--ease);
+    cursor: pointer;
+    will-change: transform;
   }
 
-  a.shot:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 46px 80px -38px rgba(122, 15, 34, .5);
+  .dcard.is-active {
+    cursor: default;
+    box-shadow: 0 46px 84px -30px rgba(122, 15, 34, .5);
   }
 
-  .shot-bar {
+  .dcard-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    padding: 6px 11px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .badge.badge-dark {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  .dcard-head {
     display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 11px 14px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
+    gap: 14px;
+    margin-bottom: 15px;
   }
 
-  .shot-bar i {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: #e4bcc0;
-    flex: 0 0 auto;
-  }
-
-  .shot-bar .url {
-    margin-left: 10px;
-    font-family: var(--mono);
-    font-size: .66rem;
-    color: var(--muted);
-    letter-spacing: .01em;
-    white-space: nowrap;
+  .dcard-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
     overflow: hidden;
-    text-overflow: ellipsis;
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    background: var(--surface);
   }
 
-  .shot img {
-    display: block;
+  .dcard-icon img {
     width: 100%;
-    aspect-ratio: 16/10;
+    height: 100%;
     object-fit: cover;
     object-position: top center;
+    display: block;
   }
 
-  .proj-num {
-    font-family: var(--mono);
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .proj-num::after {
-    content: "";
-    height: 1px;
-    width: 38px;
-    background: var(--line);
-  }
-
-  .proj-body h3 {
+  .dcard h3 {
     font-family: var(--display);
-    font-weight: 600;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    letter-spacing: -.025em;
-    line-height: 1.05;
-    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -.022em;
+    line-height: 1.08;
   }
 
-  .proj-tag {
-    font-family: var(--mono);
-    font-size: .66rem;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-
-  .proj-body p {
+  .dcard p {
     color: #4a3b3e;
-    font-size: clamp(1.04rem, 1.4vw, 1.14rem);
-    line-height: 1.6;
-    max-width: 48ch;
-    margin-bottom: 24px;
+    font-size: 1rem;
+    line-height: 1.55;
+    margin-bottom: 22px;
   }
 
-  .proj-visit {
+  .dcard-foot {
+    margin-top: auto;
+  }
+
+  .dcard-cta {
     font-family: var(--mono);
     font-size: .72rem;
     letter-spacing: .06em;
@@ -1042,8 +1002,96 @@
     transition: gap .25s var(--ease);
   }
 
-  .proj-visit:hover {
+  .dcard-cta:hover {
     gap: 12px;
+  }
+
+  .dcard-note {
+    font-family: var(--mono);
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .deck-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 30px;
+  }
+
+  .deck-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+  }
+
+  .deck-arrow:hover {
+    border-color: var(--red);
+    color: var(--red);
+    transform: translateY(-2px);
+  }
+
+  .deck-dots {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .deck-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 99px;
+    background: var(--line);
+    cursor: pointer;
+    transition: background .25s var(--ease), width .25s var(--ease);
+  }
+
+  .deck-dot.on {
+    background: var(--red);
+    width: 22px;
+  }
+
+  @media (max-width:760px) {
+    .deck-stage {
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      perspective: none;
+    }
+
+    .dcard {
+      position: static;
+      left: auto;
+      top: auto;
+      width: 100%;
+      min-height: 0;
+      transform: none !important;
+      opacity: 1 !important;
+      z-index: auto !important;
+      pointer-events: auto !important;
+      cursor: default;
+    }
+
+    .deck-nav {
+      display: none;
+    }
   }
 
   /* content showcase, aligned grid */
@@ -3474,68 +3522,54 @@
           </div>
           <h2>What I <em>do now</em></h2>
         </div>
-        <div class="work-list reveal">
-          <div class="proj">
-            <a class="shot" href="https://spotlight.tokenizeconference.com/" target="_blank" rel="noopener">
-              <div class="shot-bar"><i></i><i></i><i></i><span class="url">spotlight.tokenizeconference.com</span></div>
-              <img src="work-spotlight.png" alt="Spotlight, speaker-management platform" loading="lazy"
-                style="object-position:center" />
-            </a>
-            <div class="proj-body">
-              <div class="proj-num">01, Product</div>
-              <h3>Spotlight</h3>
-              <div class="proj-tag">React &middot; Supabase &middot; Vercel</div>
-              <p>A speaker-management platform I built from scratch as a Sessionize alternative for a conference I work
-                with. Designed it, built it, ran a security audit, hardened it toward production, then pitched it
-                internally.</p>
-              <a class="proj-visit" href="https://spotlight.tokenizeconference.com/" target="_blank"
-                rel="noopener">Visit Spotlight &#8599;</a>
-            </div>
+        <div class="deck reveal" id="workdeck">
+          <div class="deck-stage">
+            <article class="dcard" tabindex="0">
+              <div class="dcard-badges"><span class="badge badge-dark">Product</span><span class="badge">React</span><span class="badge">Supabase</span></div>
+              <div class="dcard-head">
+                <span class="dcard-icon"><img src="work-spotlight.png" alt="Spotlight" loading="lazy" /></span>
+                <h3>Spotlight</h3>
+              </div>
+              <p>A speaker-management platform I built from scratch, a Sessionize alternative for a conference I work with. Designed it, built it, security-audited it, then pitched it internally.</p>
+              <div class="dcard-foot"><a class="dcard-cta" href="https://spotlight.tokenizeconference.com/" target="_blank" rel="noopener">Visit Spotlight &#8599;</a></div>
+            </article>
+            <article class="dcard" tabindex="0">
+              <div class="dcard-badges"><span class="badge badge-dark">Website</span><span class="badge">Elementor</span><span class="badge">SEO</span></div>
+              <div class="dcard-head">
+                <span class="dcard-icon"><img src="work-tokenize.png" alt="Tokenize! Conference" loading="lazy" /></span>
+                <h3>Tokenize! Conference</h3>
+              </div>
+              <p>Site, content, and event work for a Web3 &amp; AI conference series, speaker campaigns, event-day content, and the SEO nobody sees: JSON-LD, Open Graph, structured data.</p>
+              <div class="dcard-foot"><a class="dcard-cta" href="https://tokenizeconference.com/" target="_blank" rel="noopener">Visit the site &#8599;</a></div>
+            </article>
+            <article class="dcard" tabindex="0">
+              <div class="dcard-badges"><span class="badge badge-dark">Website</span><span class="badge">WordPress</span><span class="badge">Community</span></div>
+              <div class="dcard-head">
+                <span class="dcard-icon"><img src="work-bitangels.png" alt="BitAngels" loading="lazy" /></span>
+                <h3>BitAngels</h3>
+              </div>
+              <p>Ongoing web and content for the world's premier blockchain investor network, managing and rebuilding the site, plus the structured-data and CSS plumbing underneath.</p>
+              <div class="dcard-foot"><a class="dcard-cta" href="https://bitangels.network/" target="_blank" rel="noopener">Visit the site &#8599;</a></div>
+            </article>
+            <article class="dcard" tabindex="0">
+              <div class="dcard-badges"><span class="badge badge-dark">Systems</span><span class="badge">Skein</span><span class="badge">n8n</span><span class="badge">Claude</span></div>
+              <div class="dcard-head">
+                <span class="dcard-icon"><img src="work-systems.png" alt="Automations and content systems" loading="lazy" /></span>
+                <h3>Automations &amp; content</h3>
+              </div>
+              <p>The plumbing and the production line, including <b>Skein</b>, 15 SEO tools on one Cloudflare + Supabase + Claude engine. Plus n8n workflows and an AI content system running social across four brands.</p>
+              <div class="dcard-foot"><span class="dcard-note">Internal toolkit</span></div>
+            </article>
           </div>
-          <div class="proj">
-            <a class="shot" href="https://tokenizeconference.com/" target="_blank" rel="noopener">
-              <div class="shot-bar"><i></i><i></i><i></i><span class="url">tokenizeconference.com</span></div>
-              <img src="work-tokenize.png" alt="Tokenize! Conference website" loading="lazy" />
-            </a>
-            <div class="proj-body">
-              <div class="proj-num">02, Website</div>
-              <h3>Tokenize! Conference</h3>
-              <div class="proj-tag">Web &middot; Elementor &middot; SEO</div>
-              <p>Site, content, and event work for a Web3 &amp; AI conference series (Tokenize LATAM &amp; Global),
-                speaker campaigns, event-day content, and the SEO nobody sees: JSON-LD, Open Graph, structured data.
-                Redesigned the homepage in Elementor.</p>
-              <a class="proj-visit" href="https://tokenizeconference.com/" target="_blank" rel="noopener">Visit the site
-                &#8599;</a>
+          <div class="deck-nav">
+            <button class="deck-arrow deck-prev" type="button" aria-label="Previous project">&#8592;</button>
+            <div class="deck-dots">
+              <button class="deck-dot" type="button" aria-label="Project 1"></button>
+              <button class="deck-dot" type="button" aria-label="Project 2"></button>
+              <button class="deck-dot" type="button" aria-label="Project 3"></button>
+              <button class="deck-dot" type="button" aria-label="Project 4"></button>
             </div>
-          </div>
-          <div class="proj">
-            <a class="shot" href="https://bitangels.network/" target="_blank" rel="noopener">
-              <div class="shot-bar"><i></i><i></i><i></i><span class="url">bitangels.network</span></div>
-              <img src="work-bitangels.png" alt="BitAngels investor-network website" loading="lazy" />
-            </a>
-            <div class="proj-body">
-              <div class="proj-num">03, Website</div>
-              <h3>BitAngels</h3>
-              <div class="proj-tag">Web &middot; WordPress &middot; Community</div>
-              <p>Ongoing web and content for the world's premier blockchain investor network, managing and rebuilding
-                the site, plus the structured-data and CSS plumbing underneath.</p>
-              <a class="proj-visit" href="https://bitangels.network/" target="_blank" rel="noopener">Visit the site
-                &#8599;</a>
-            </div>
-          </div>
-          <div class="proj">
-            <div class="shot">
-              <div class="shot-bar"><i></i><i></i><i></i><span class="url">the production line</span></div>
-              <img src="work-systems.png" alt="Automations and AI content systems" loading="lazy" />
-            </div>
-            <div class="proj-body">
-              <div class="proj-num">04, Systems</div>
-              <h3>Automations &amp; content</h3>
-              <div class="proj-tag">Skein &middot; n8n &middot; Claude</div>
-              <p>The plumbing and the production line, including <b>Skein</b>, an internal toolkit of 15 SEO tools on
-                one Cloudflare + Supabase + Claude engine, with a SERP-grounded research-then-generate pipeline. Plus
-                n8n workflows, intake systems, and an AI content system running social across four brands.</p>
-            </div>
+            <button class="deck-arrow deck-next" type="button" aria-label="Next project">&#8594;</button>
           </div>
         </div>
       </div>
@@ -4192,6 +4226,37 @@
       var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .12 });
       document.querySelectorAll('.reveal,.seam').forEach(function (el) { io.observe(el); });
     } else { document.querySelectorAll('.reveal,.seam').forEach(function (el) { el.classList.add('in'); }); }
+
+    /* work project deck — fanned cards, click/dots/arrows to bring one to front */
+    (function () {
+      var deck = document.getElementById('workdeck'); if (!deck) return;
+      var cards = Array.prototype.slice.call(deck.querySelectorAll('.dcard'));
+      var dots = Array.prototype.slice.call(deck.querySelectorAll('.deck-dot'));
+      var n = cards.length, active = 0;
+      function layout() {
+        cards.forEach(function (c, i) {
+          var off = i - active, ax = Math.abs(off);
+          var tx = off * 52, ty = ax * 12, rot = off * 6.5, scale = 1 - ax * 0.075;
+          c.style.transform = 'translate(-50%,-50%) translateX(' + tx + '%) translateY(' + ty + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
+          c.style.zIndex = String(100 - ax);
+          c.style.opacity = ax > 2 ? '0' : String(1 - ax * 0.18);
+          c.style.pointerEvents = ax > 2 ? 'none' : 'auto';
+          c.classList.toggle('is-active', off === 0);
+          c.setAttribute('aria-hidden', off === 0 ? 'false' : 'true');
+        });
+        dots.forEach(function (d, i) { d.classList.toggle('on', i === active); });
+      }
+      function go(i) { active = (i + n) % n; layout(); }
+      cards.forEach(function (c, i) {
+        c.addEventListener('click', function (e) { if (i !== active) { e.preventDefault(); go(i); } });
+        c.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && i !== active) { e.preventDefault(); go(i); } });
+      });
+      dots.forEach(function (d, i) { d.addEventListener('click', function () { go(i); }); });
+      var prev = deck.querySelector('.deck-prev'), next = deck.querySelector('.deck-next');
+      if (prev) prev.addEventListener('click', function () { go(active - 1); });
+      if (next) next.addEventListener('click', function () { go(active + 1); });
+      layout();
+    })();
 
     /* progress + sticky */
     var prog = document.getElementById('progress'), hdr = document.getElementById('hdr'), journey = document.getElementById('journey');
