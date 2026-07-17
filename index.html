@@ -725,6 +725,83 @@
     }
   }
 
+  /* left app rail — collapsed to icons, expands on hover */
+  .rail {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 7px;
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    background: rgba(255, 252, 250, .72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 22px 46px -30px rgba(122, 15, 34, .32);
+  }
+
+  .rail-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 42px;
+    height: 42px;
+    padding: 0 11px;
+    border: none;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width .28s var(--ease), background .2s var(--ease), color .2s var(--ease);
+  }
+
+  .rail-item svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+  }
+
+  .rail-label {
+    font-family: var(--mono);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity .2s var(--ease);
+  }
+
+  .rail:hover .rail-item {
+    width: 148px;
+  }
+
+  .rail:hover .rail-label {
+    opacity: 1;
+  }
+
+  .rail-item:hover {
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .rail-item.active {
+    color: var(--red);
+    background: var(--rose);
+  }
+
+  @media (max-width:1024px) {
+    .rail {
+      display: none;
+    }
+  }
+
   /* sections */
   section {
     padding: var(--gut) 0;
@@ -3454,6 +3531,16 @@
     </div>
   </header>
 
+  <nav class="rail" id="rail" aria-label="Sections">
+    <button class="rail-item" type="button" data-target="top" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span class="rail-label">Home</span></button>
+    <button class="rail-item" type="button" data-target="work" aria-label="Work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span class="rail-label">Work</span></button>
+    <button class="rail-item" type="button" data-target="content" aria-label="Content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg><span class="rail-label">Content</span></button>
+    <button class="rail-item" type="button" data-target="events" aria-label="Events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg><span class="rail-label">Events</span></button>
+    <button class="rail-item" type="button" data-target="skills" aria-label="Skills"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 13.9 9 19.5 9.5 15.2 13.2 16.6 18.7 12 15.6 7.4 18.7 8.8 13.2 4.5 9.5 10.1 9z"/></svg><span class="rail-label">Skills</span></button>
+    <button class="rail-item" type="button" data-view="travel" aria-label="Travel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10.5 13.5"/><path d="M21 3 14.2 21l-3.7-7.5L3 9.8z"/></svg><span class="rail-label">Travel</span></button>
+    <button class="rail-item" type="button" data-target="hire" aria-label="Say hi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-11.7 7.1L3 20.5l1.9-6.2A8 8 0 1 1 21 11.5z"/></svg><span class="rail-label">Say hi</span></button>
+  </nav>
+
   <main id="workmain">
     <div class="wrap hero">
       <div class="heropanel reveal">
@@ -4399,6 +4486,42 @@
       start();
     })();
 
+    /* left app rail — click nav (handles view switch) + scrollspy */
+    (function () {
+      var rail = document.getElementById('rail'); if (!rail) return;
+      var items = Array.prototype.slice.call(rail.querySelectorAll('.rail-item'));
+      function nav() { return window.__nav || {}; }
+      items.forEach(function (it) {
+        it.addEventListener('click', function () {
+          if (it.getAttribute('data-view') === 'travel') { if (nav().setView) nav().setView('travel', true); return; }
+          var target = it.getAttribute('data-target');
+          var fromTravel = root.getAttribute('data-view') === 'travel';
+          if (fromTravel && nav().setMode) { var m = 'marketer'; try { m = localStorage.getItem('hb-mode') || 'marketer'; } catch (e) { } nav().setMode(m, false); }
+          if (target === 'top') { scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
+          var el = document.getElementById(target); if (!el) return;
+          if (fromTravel) requestAnimationFrame(function () { el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+          else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+        });
+      });
+      var homeItem = items[0];
+      var order = ['work', 'content', 'events', 'skills', 'hire'];
+      function spy() {
+        if (root.getAttribute('data-view') === 'travel') {
+          items.forEach(function (i) { i.classList.toggle('active', i.getAttribute('data-view') === 'travel'); });
+          return;
+        }
+        var y = innerHeight * 0.32, cur = 'top';
+        order.forEach(function (t) { var el = document.getElementById(t); if (el && el.getBoundingClientRect().top <= y) cur = t; });
+        items.forEach(function (i) {
+          var t = i.getAttribute('data-target');
+          i.classList.toggle('active', cur === 'top' ? (i === homeItem) : (t === cur));
+        });
+      }
+      addEventListener('scroll', spy, { passive: true });
+      new MutationObserver(spy).observe(root, { attributes: true, attributeFilter: ['data-view'] });
+      spy();
+    })();
+
     /* progress + sticky */
     var prog = document.getElementById('progress'), hdr = document.getElementById('hdr'), journey = document.getElementById('journey');
     function onScroll() {
@@ -4511,6 +4634,7 @@
     document.getElementById('m-mkt').onclick = function () { setMode('marketer', true); };
     document.getElementById('m-bld').onclick = function () { setMode('builder', true); };
     document.getElementById('m-trv').onclick = function () { setView('travel', true); };
+    window.__nav = { setMode: setMode, setView: setView, scrollTop: scrollTop };
     // restore state (mode text + view) without animation
     var savedMode = 'marketer', savedView = 'work';
     try { savedMode = localStorage.getItem('hb-mode') || 'marketer'; savedView = (location.hash === '#travel' || location.hash.indexOf('#post/') === 0) ? 'travel' : (localStorage.getItem('hb-view') || 'work'); } catch (e) { }
