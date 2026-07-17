@@ -786,25 +786,31 @@
     transition: transform .42s cubic-bezier(.34, 1.5, .64, 1);
   }
 
+  /* label pops out only for the icon you hover (tooltip) */
   .rail-label {
-    position: relative;
-    z-index: 1;
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-5px);
+    padding: 6px 11px;
+    border-radius: 9px;
+    background: var(--ink);
+    color: #fff;
     font-family: var(--mono);
-    font-size: .68rem;
+    font-size: .62rem;
     font-weight: 600;
-    letter-spacing: .04em;
+    letter-spacing: .06em;
     text-transform: uppercase;
+    white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity .2s var(--ease);
+    z-index: 3;
+    transition: opacity .18s var(--ease), transform .18s var(--ease);
   }
 
-  .rail:hover .rail-item {
-    width: 148px;
-  }
-
-  .rail:hover .rail-label {
+  .rail-item:hover .rail-label {
     opacity: 1;
+    transform: translateY(-50%) translateX(0);
   }
 
   .rail-item:hover {
@@ -825,10 +831,6 @@
 
   .rail-item.active svg {
     transform: translateX(6px);
-  }
-
-  .rail-item.active .rail-label {
-    color: var(--red);
   }
 
   @media (max-width:1024px) {
