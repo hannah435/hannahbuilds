@@ -4255,24 +4255,33 @@
         dots.forEach(function (d, i) { d.classList.toggle('on', i === active); });
       }
       function go(i) { active = (i + n) % n; layout(); }
+      // autoplay — advance every 5s, pause on hover/touch, reset on manual nav
+      var timer = null;
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      function start() { if (reduce || n < 2) return; stop(); timer = setInterval(function () { go(active + 1); }, 5000); }
+      function nav(i) { go(i); start(); }
       cards.forEach(function (c, i) {
-        c.addEventListener('click', function (e) { if (i !== active) { e.preventDefault(); go(i); } });
-        c.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && i !== active) { e.preventDefault(); go(i); } });
+        c.addEventListener('click', function (e) { if (i !== active) { e.preventDefault(); nav(i); } });
+        c.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && i !== active) { e.preventDefault(); nav(i); } });
       });
-      dots.forEach(function (d, i) { d.addEventListener('click', function () { go(i); }); });
+      dots.forEach(function (d, i) { d.addEventListener('click', function () { nav(i); }); });
       var prev = deck.querySelector('.deck-prev'), next = deck.querySelector('.deck-next');
-      if (prev) prev.addEventListener('click', function () { go(active - 1); });
-      if (next) next.addEventListener('click', function () { go(active + 1); });
+      if (prev) prev.addEventListener('click', function () { nav(active - 1); });
+      if (next) next.addEventListener('click', function () { nav(active + 1); });
+      deck.addEventListener('mouseenter', stop);
+      deck.addEventListener('mouseleave', start);
       // touch swipe (mobile) — flick left/right to move through the deck
       var sx = null;
-      deck.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+      deck.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; stop(); }, { passive: true });
       deck.addEventListener('touchend', function (e) {
-        if (sx === null) return;
+        if (sx === null) { start(); return; }
         var dx = e.changedTouches[0].clientX - sx; sx = null;
         if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
+        start();
       }, { passive: true });
       addEventListener('resize', layout);
       layout();
+      start();
     })();
 
     /* progress + sticky */
