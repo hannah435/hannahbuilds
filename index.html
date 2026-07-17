@@ -894,6 +894,7 @@
     position: relative;
     height: clamp(392px, 47vw, 452px);
     perspective: 1500px;
+    overflow-x: clip;
   }
 
   .dcard {
@@ -1069,28 +1070,23 @@
 
   @media (max-width:760px) {
     .deck-stage {
-      height: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      perspective: none;
+      height: 470px;
     }
 
     .dcard {
-      position: static;
-      left: auto;
-      top: auto;
-      width: 100%;
-      min-height: 0;
-      transform: none !important;
-      opacity: 1 !important;
-      z-index: auto !important;
-      pointer-events: auto !important;
-      cursor: default;
+      width: min(330px, 82vw);
+      min-height: 316px;
+      padding: 22px 22px 20px;
     }
 
-    .deck-nav {
-      display: none;
+    .badge {
+      font-size: .55rem;
+      padding: 5px 9px;
+      letter-spacing: .1em;
+    }
+
+    .dcard p {
+      font-size: .95rem;
     }
   }
 
@@ -4244,9 +4240,11 @@
       var dots = Array.prototype.slice.call(deck.querySelectorAll('.deck-dot'));
       var n = cards.length, active = Math.floor((n - 1) / 2);
       function layout() {
+        var narrow = innerWidth < 640;
+        var spread = narrow ? 47 : 52, rotU = narrow ? 5 : 6.5, tyU = narrow ? 10 : 12, scU = narrow ? 0.06 : 0.075;
         cards.forEach(function (c, i) {
           var off = i - active, ax = Math.abs(off);
-          var tx = off * 52, ty = ax * 12, rot = off * 6.5, scale = 1 - ax * 0.075;
+          var tx = off * spread, ty = ax * tyU, rot = off * rotU, scale = 1 - ax * scU;
           c.style.transform = 'translate(-50%,-50%) translateX(' + tx + '%) translateY(' + ty + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
           c.style.zIndex = String(100 - ax);
           c.style.opacity = ax > 2 ? '0' : String(1 - ax * 0.18);
@@ -4265,6 +4263,15 @@
       var prev = deck.querySelector('.deck-prev'), next = deck.querySelector('.deck-next');
       if (prev) prev.addEventListener('click', function () { go(active - 1); });
       if (next) next.addEventListener('click', function () { go(active + 1); });
+      // touch swipe (mobile) — flick left/right to move through the deck
+      var sx = null;
+      deck.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+      deck.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx; sx = null;
+        if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+      addEventListener('resize', layout);
       layout();
     })();
 
