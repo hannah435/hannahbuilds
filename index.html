@@ -3552,13 +3552,22 @@
               <div class="dcard-foot"><a class="dcard-cta" href="https://bitangels.network/" target="_blank" rel="noopener">Visit the site &#8599;</a></div>
             </article>
             <article class="dcard" tabindex="0">
-              <div class="dcard-badges"><span class="badge badge-dark">Systems</span><span class="badge">Skein</span><span class="badge">n8n</span><span class="badge">Claude</span></div>
+              <div class="dcard-badges"><span class="badge badge-dark">Systems</span><span class="badge">n8n</span><span class="badge">Claude</span></div>
               <div class="dcard-head">
                 <span class="dcard-icon"><img src="work-systems.png" alt="Automations and content systems" loading="lazy" /></span>
                 <h3>Automations &amp; content</h3>
               </div>
-              <p>The plumbing and the production line, including <b>Skein</b>, 15 SEO tools on one Cloudflare + Supabase + Claude engine. Plus n8n workflows and an AI content system running social across four brands.</p>
+              <p>The plumbing and the production line: n8n workflows, intake systems, and an AI content engine running social across four brands plus a founder.</p>
               <div class="dcard-foot"><span class="dcard-note">Internal toolkit</span></div>
+            </article>
+            <article class="dcard" tabindex="0">
+              <div class="dcard-badges"><span class="badge badge-dark">Flagship</span><span class="badge">Cloudflare</span><span class="badge">Supabase</span><span class="badge">Claude</span></div>
+              <div class="dcard-head">
+                <span class="dcard-icon"><img src="work-skein.png" alt="Skein SEO toolkit" loading="lazy" /></span>
+                <h3>Skein</h3>
+              </div>
+              <p>My flagship: an internal toolkit of 15 SEO tools on one Cloudflare + Supabase + Claude engine, with a SERP-grounded research-then-generate pipeline.</p>
+              <div class="dcard-foot"><a class="dcard-cta" href="https://seo-toolkit-95u.pages.dev/" target="_blank" rel="noopener">See it live &#8599;</a></div>
             </article>
           </div>
           <div class="deck-nav">
@@ -3568,6 +3577,7 @@
               <button class="deck-dot" type="button" aria-label="Project 2"></button>
               <button class="deck-dot" type="button" aria-label="Project 3"></button>
               <button class="deck-dot" type="button" aria-label="Project 4"></button>
+              <button class="deck-dot" type="button" aria-label="Project 5"></button>
             </div>
             <button class="deck-arrow deck-next" type="button" aria-label="Next project">&#8594;</button>
           </div>
@@ -4232,7 +4242,7 @@
       var deck = document.getElementById('workdeck'); if (!deck) return;
       var cards = Array.prototype.slice.call(deck.querySelectorAll('.dcard'));
       var dots = Array.prototype.slice.call(deck.querySelectorAll('.deck-dot'));
-      var n = cards.length, active = n > 2 ? 1 : 0;
+      var n = cards.length, active = Math.floor((n - 1) / 2);
       function layout() {
         cards.forEach(function (c, i) {
           var off = i - active, ax = Math.abs(off);
