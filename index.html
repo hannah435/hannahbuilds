@@ -808,33 +808,21 @@
     transition: opacity .18s var(--ease), transform .18s var(--ease);
   }
 
-  .rail-item:hover .rail-label {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
-
+  /* hover only: icon lifts out into the raised accent circle, with its label */
   .rail-item:hover {
-    background: var(--surface);
-    color: var(--ink);
-  }
-
-  /* active: icon lifts out into the raised accent circle */
-  .rail-item.active {
     color: #fff;
-    background: transparent;
   }
 
-  .rail-item.active::before {
+  .rail-item:hover::before {
     transform: scale(1) translateX(18px);
     box-shadow: 0 8px 22px -5px rgba(216, 30, 60, .55);
   }
 
-  .rail-item.active svg {
+  .rail-item:hover svg {
     transform: translateX(18px);
   }
 
-  /* active item keeps its label out on the page */
-  .rail-item.active .rail-label {
+  .rail-item:hover .rail-label {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
     left: calc(100% + 26px);
