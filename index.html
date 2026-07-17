@@ -4232,7 +4232,7 @@
       var deck = document.getElementById('workdeck'); if (!deck) return;
       var cards = Array.prototype.slice.call(deck.querySelectorAll('.dcard'));
       var dots = Array.prototype.slice.call(deck.querySelectorAll('.deck-dot'));
-      var n = cards.length, active = 0;
+      var n = cards.length, active = n > 2 ? 1 : 0;
       function layout() {
         cards.forEach(function (c, i) {
           var off = i - active, ax = Math.abs(off);
