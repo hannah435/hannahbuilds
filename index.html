@@ -825,12 +825,19 @@
   }
 
   .rail-item.active::before {
-    transform: scale(1) translateX(6px);
-    box-shadow: 0 10px 20px -6px rgba(216, 30, 60, .5);
+    transform: scale(1) translateX(18px);
+    box-shadow: 0 8px 22px -5px rgba(216, 30, 60, .55);
   }
 
   .rail-item.active svg {
-    transform: translateX(6px);
+    transform: translateX(18px);
+  }
+
+  /* active item keeps its label out on the page */
+  .rail-item.active .rail-label {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    left: calc(100% + 26px);
   }
 
   @media (max-width:1024px) {
