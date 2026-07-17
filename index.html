@@ -4489,6 +4489,7 @@
     /* left app rail — click nav (handles view switch) + scrollspy */
     (function () {
       var rail = document.getElementById('rail'); if (!rail) return;
+      var root = document.documentElement;
       var items = Array.prototype.slice.call(rail.querySelectorAll('.rail-item'));
       function nav() { return window.__nav || {}; }
       items.forEach(function (it) {
