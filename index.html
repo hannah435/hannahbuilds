@@ -831,9 +831,71 @@
     left: calc(100% + 26px);
   }
 
+  /* mobile: rail becomes a floating bottom bar; current section = active tab */
   @media (max-width:1024px) {
     .rail {
+      left: 50%;
+      right: auto;
+      top: auto;
+      bottom: 14px;
+      transform: translateX(-50%);
+      flex-direction: row;
+      gap: 2px;
+      padding: 6px;
+      border-radius: 20px;
+      max-width: calc(100vw - 24px);
+    }
+
+    .rail-item {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .rail-label {
       display: none;
+    }
+
+    .rail-item::before {
+      left: 50%;
+      top: 50%;
+      width: 36px;
+      height: 36px;
+      margin: -18px 0 0 -18px;
+      border-radius: 12px;
+    }
+
+    /* no hover-pop on touch — the active (current) tab is the highlight */
+    .rail-item:hover {
+      color: var(--muted);
+    }
+
+    .rail-item:hover::before {
+      transform: scale(0);
+      box-shadow: none;
+    }
+
+    .rail-item:hover svg {
+      transform: none;
+    }
+
+    .rail-item.active {
+      color: #fff;
+    }
+
+    .rail-item.active::before {
+      transform: scale(1);
+      background: var(--red);
+      box-shadow: 0 6px 16px -6px rgba(27, 17, 19, .3);
+    }
+
+    .rail-item.active svg {
+      transform: none;
+    }
+
+    .ask {
+      bottom: 86px;
     }
   }
 
