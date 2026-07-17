@@ -771,7 +771,8 @@
     height: 34px;
     margin-top: -17px;
     border-radius: 50%;
-    background: var(--red);
+    background: #fff;
+    border: 1px solid var(--line);
     transform: scale(0);
     z-index: 0;
     transition: transform .42s cubic-bezier(.34, 1.5, .64, 1), box-shadow .3s var(--ease);
@@ -781,6 +782,7 @@
     width: 20px;
     height: 20px;
     flex: 0 0 auto;
+    stroke-width: 1.4;
     position: relative;
     z-index: 1;
     transition: transform .42s cubic-bezier(.34, 1.5, .64, 1);
@@ -808,14 +810,14 @@
     transition: opacity .18s var(--ease), transform .18s var(--ease);
   }
 
-  /* hover only: icon lifts out into the raised accent circle, with its label */
+  /* hover only: icon lifts out into the raised white circle, with its label */
   .rail-item:hover {
-    color: #fff;
+    color: var(--ink);
   }
 
   .rail-item:hover::before {
     transform: scale(1) translateX(18px);
-    box-shadow: 0 8px 22px -5px rgba(216, 30, 60, .55);
+    box-shadow: 0 8px 20px -6px rgba(27, 17, 19, .22);
   }
 
   .rail-item:hover svg {
