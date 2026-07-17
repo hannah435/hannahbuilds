@@ -757,24 +757,45 @@
     background: transparent;
     color: var(--muted);
     cursor: pointer;
-    overflow: hidden;
     white-space: nowrap;
     transition: width .28s var(--ease), background .2s var(--ease), color .2s var(--ease);
+  }
+
+  /* the raised circle that pops in behind the active icon */
+  .rail-item::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    margin-top: -17px;
+    border-radius: 50%;
+    background: var(--red);
+    transform: scale(0);
+    z-index: 0;
+    transition: transform .42s cubic-bezier(.34, 1.5, .64, 1), box-shadow .3s var(--ease);
   }
 
   .rail-item svg {
     width: 20px;
     height: 20px;
     flex: 0 0 auto;
+    position: relative;
+    z-index: 1;
+    transition: transform .42s cubic-bezier(.34, 1.5, .64, 1);
   }
 
   .rail-label {
+    position: relative;
+    z-index: 1;
     font-family: var(--mono);
     font-size: .68rem;
     font-weight: 600;
     letter-spacing: .04em;
     text-transform: uppercase;
     opacity: 0;
+    pointer-events: none;
     transition: opacity .2s var(--ease);
   }
 
@@ -791,9 +812,23 @@
     color: var(--ink);
   }
 
+  /* active: icon lifts out into the raised accent circle */
   .rail-item.active {
+    color: #fff;
+    background: transparent;
+  }
+
+  .rail-item.active::before {
+    transform: scale(1) translateX(6px);
+    box-shadow: 0 10px 20px -6px rgba(216, 30, 60, .5);
+  }
+
+  .rail-item.active svg {
+    transform: translateX(6px);
+  }
+
+  .rail-item.active .rail-label {
     color: var(--red);
-    background: var(--rose);
   }
 
   @media (max-width:1024px) {
