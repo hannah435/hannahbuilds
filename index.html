@@ -2333,7 +2333,22 @@
 
     @media(max-width:760px) {
       .events-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+      }
+
+      .events-grid::-webkit-scrollbar {
+        display: none;
+      }
+
+      .events-grid>.ev-card {
+        flex: 0 0 82%;
+        scroll-snap-align: center;
       }
     }
 
@@ -5063,12 +5078,12 @@
       document.querySelectorAll('.card').forEach(function (c) { c.addEventListener('pointermove', function (e) { var b = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - b.left) + 'px'); c.style.setProperty('--my', (e.clientY - b.top) + 'px'); }); });
     } else { glow.style.display = 'none'; }
 
-    /* "What the system ships" — mobile: swipeable, auto-advancing card carousel (desktop stays a grid) */
-    (function () {
-      var wall = document.querySelector('#content .cwall'); if (!wall) return;
+    /* mobile: turn a card grid into a swipeable, auto-advancing carousel (desktop stays a grid) */
+    function mobileCarousel(sel, cardSel) {
+      var wall = document.querySelector(sel); if (!wall) return;
       var mq = matchMedia('(max-width:760px)');
       var timer = null, idx = 0;
-      function cards() { return wall.querySelectorAll('.cwork'); }
+      function cards() { return wall.querySelectorAll(cardSel); }
       function go(i) {
         var cs = cards(); if (!cs.length) return;
         idx = (i + cs.length) % cs.length;
@@ -5094,7 +5109,9 @@
         }, { threshold: 0.25 }).observe(wall);
       }
       if (mq.addEventListener) mq.addEventListener('change', function () { stop(); });
-    })();
+    }
+    mobileCarousel('#content .cwall', '.cwork');
+    mobileCarousel('#events .events-grid', '.ev-card');
 
     /* Manila time-aware status */
     function tick() {
