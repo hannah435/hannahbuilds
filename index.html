@@ -1082,6 +1082,40 @@
       overflow-x: clip;
     }
 
+    /* skills gallery reused as a fanned "poster" deck (portrait cards) */
+    .deck--skills .deck-stage {
+      height: clamp(500px, 132vw, 548px);
+    }
+
+    .deck--skills .skill-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(264px, 76vw);
+      cursor: pointer;
+      will-change: transform;
+      box-shadow: 0 30px 60px -36px rgba(122, 15, 34, .4);
+      transition: transform .55s var(--ease), opacity .45s var(--ease), box-shadow .45s var(--ease);
+    }
+
+    .deck--skills .skill-card.is-active {
+      cursor: default;
+      box-shadow: 0 46px 84px -30px rgba(122, 15, 34, .5);
+    }
+
+    .deck--skills .skill-card:hover {
+      transform: none;
+      border-color: var(--line);
+    }
+
+    .deck--skills .skill-body p {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     .dcard {
       position: absolute;
       left: 50%;
@@ -4968,12 +5002,13 @@
       document.querySelectorAll('.reveal,.seam').forEach(function (el) { io.observe(el); });
     } else { document.querySelectorAll('.reveal,.seam').forEach(function (el) { el.classList.add('in'); }); }
 
-    /* work project deck — fanned cards, click/dots/arrows to bring one to front */
-    (function () {
-      var deck = document.getElementById('workdeck'); if (!deck) return;
-      var cards = Array.prototype.slice.call(deck.querySelectorAll('.dcard'));
+    /* fanned card deck — click/dots/arrows/swipe to bring one to front, autoplay 5s */
+    function deckFan(deck, cardSel) {
+      if (!deck) return;
+      var cards = Array.prototype.slice.call(deck.querySelectorAll(cardSel));
       var dots = Array.prototype.slice.call(deck.querySelectorAll('.deck-dot'));
-      var n = cards.length, active = Math.floor((n - 1) / 2);
+      var n = cards.length; if (!n) return;
+      var active = Math.floor((n - 1) / 2);
       function layout() {
         var narrow = innerWidth < 640;
         var spread = narrow ? 47 : 52, rotU = narrow ? 5 : 6.5, tyU = narrow ? 10 : 12, scU = narrow ? 0.06 : 0.075;
@@ -5017,7 +5052,8 @@
       addEventListener('resize', layout);
       layout();
       start();
-    })();
+    }
+    deckFan(document.getElementById('workdeck'), '.dcard');
 
     /* left app rail — click nav (handles view switch) + scrollspy */
     (function () {
@@ -5577,12 +5613,14 @@
           var rows = (res && res.data) || [];
           if (!rows.length) { hide(); return; }
           if (section) section.style.display = '';
+          grid.className = 'deck deck--skills reveal in';
           grid.innerHTML = '';
+          var stage = document.createElement('div'); stage.className = 'deck-stage';
           rows.forEach(function (r) {
             var imgs = Array.isArray(r.images) ? r.images.filter(Boolean) : [];
             if (!imgs.length && r.image_url) imgs = [r.image_url];
             var isPdf = r.preview_url && /\.pdf(\?|$)/i.test(r.preview_url);
-            var d = document.createElement('div'); d.className = 'skill-card';
+            var d = document.createElement('div'); d.className = 'skill-card'; d.tabIndex = 0;
             var media = '';
             if (imgs.length) {
               var slides = imgs.map(function (u, i) { return '<img class="sl' + (i === 0 ? ' active' : '') + '" src="' + esc(thumb(u)) + '" alt="' + esc(r.title) + '" loading="lazy">'; }).join('');
@@ -5594,6 +5632,7 @@
             var mediaEl = d.querySelector('.skill-media');
             if (mediaEl) {
               mediaEl.addEventListener('click', function () {
+                if (!d.classList.contains('is-active')) return; // only the focused card opens
                 if (isPdf) { window.open(r.preview_url, '_blank', 'noopener'); return; }
                 if (imgs.length) lbOpen(imgs, 0);
               });
@@ -5609,9 +5648,22 @@
               }
             }
             var dlEl = d.querySelector('.skill-dl');
-            if (dlEl) dlEl.addEventListener('click', function () { try { sb.from('events').insert({ kind: 'skill_download', ref: String(r.id), label: r.title || '' }).then(function () { }, function () { }); } catch (e) { } });
-            grid.appendChild(d);
+            if (dlEl) dlEl.addEventListener('click', function () {
+              if (!d.classList.contains('is-active')) return; // background card: deck focuses it instead
+              try { sb.from('events').insert({ kind: 'skill_download', ref: String(r.id), label: r.title || '' }).then(function () { }, function () { }); } catch (e) { }
+            });
+            stage.appendChild(d);
           });
+          grid.appendChild(stage);
+          if (rows.length > 1) {
+            var nav = document.createElement('div'); nav.className = 'deck-nav';
+            var h = '<button class="deck-arrow deck-prev" type="button" aria-label="Previous skill">&#8592;</button><div class="deck-dots">';
+            for (var i = 0; i < rows.length; i++) h += '<button class="deck-dot" type="button" aria-label="Skill ' + (i + 1) + '"></button>';
+            h += '</div><button class="deck-arrow deck-next" type="button" aria-label="Next skill">&#8594;</button>';
+            nav.innerHTML = h;
+            grid.appendChild(nav);
+          }
+          deckFan(grid, '.skill-card');
         })
         .catch(function () { hide(); });
     })();
