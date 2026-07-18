@@ -5410,7 +5410,7 @@
     /* travel map, warm-tinted Leaflet map, pins built from published posts */
     (function () {
       var el = document.getElementById('travelmap'), frame = document.querySelector('.map-frame');
-      if (!el || !window.L) return;
+      if (!el) return; // Leaflet is now lazy-loaded on demand (see ensureLeaflet), so don't require window.L up front
       // place name -> [lat, lng]; matched against each post's Place (case-insensitive, contains)
       var PLACES = {
         'taipei': [25.03, 121.56], 'taiwan': [23.7, 121.0], 'taichung': [24.15, 120.67], 'kaohsiung': [22.63, 120.30], 'tainan': [22.99, 120.21], 'hualien': [23.99, 121.60],
