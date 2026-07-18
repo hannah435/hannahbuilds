@@ -4011,6 +4011,11 @@
                     <mpath href="#fr" />
                   </animateMotion>
                 </circle>
+                <circle class="spark sub" r="4" fill="url(#sparkG)">
+                  <animateMotion dur="5.3s" repeatCount="indefinite" begin="-2s">
+                    <mpath href="#fa" />
+                  </animateMotion>
+                </circle>
               </g>
               <!-- base edges -->
               <path class="wf-edge" d="M190,340 C290,340 300,345 380,345" />
@@ -4021,6 +4026,7 @@
               <path class="wf-edge dash" d="M555,425 C555,470 500,475 500,514" />
               <path class="wf-edge dash" d="M645,425 C645,470 640,475 640,514" />
               <path class="wf-edge dash" d="M645,425 C700,470 770,475 770,514" />
+              <path class="wf-edge dash" d="M645,425 C765,470 930,475 930,514" />
               <!-- flow overlays -->
               <path id="f1" class="wf-flow" pathLength="1" d="M190,340 C290,340 300,345 380,345" />
               <path id="f2" class="wf-flow" pathLength="1" d="M730,345 C775,345 778,340 820,340" />
@@ -4030,6 +4036,7 @@
               <path id="fm" class="wf-flow" pathLength="1" d="M555,425 C555,470 500,475 500,514" />
               <path id="fg" class="wf-flow" pathLength="1" d="M645,425 C645,470 640,475 640,514" />
               <path id="fr" class="wf-flow" pathLength="1" d="M645,425 C700,470 770,475 770,514" />
+              <path id="fa" class="wf-flow" pathLength="1" d="M645,425 C765,470 930,475 930,514" />
               <!-- branch labels -->
               <text x="958" y="250" class="wf-mono" font-size="13" fill="#2F8F5A">market</text>
               <text x="958" y="432" class="wf-mono" font-size="13" fill="#C2853F">build</text>
@@ -4165,6 +4172,16 @@
                   fill="#7BA7F0">&lt;/&gt;</text>
                 <text x="770" y="626" text-anchor="middle" class="wf-h" font-size="15">Supabase &middot; Cloudflare</text>
                 <text x="770" y="646" text-anchor="middle" class="wf-sb" font-size="12.5">the build</text>
+              </g>
+              <!-- sub: automation -->
+              <g class="wf-node" id="n-auto">
+                <circle class="ring" cx="930" cy="560" r="42" fill="url(#glassOrb)" stroke="rgba(255,255,255,.24)"
+                  stroke-width="1.1" filter="url(#nodeds)" />
+                <ellipse cx="916" cy="545" rx="14" ry="8" fill="#fff" opacity=".15" transform="rotate(-30 916 545)" />
+                <path d="M936,543 L913,564 L926,564 L919,579 L947,554 L933,554 Z" fill="#FF9A66" stroke="#FF9A66"
+                  stroke-width="1" stroke-linejoin="round" filter="url(#nodeds)" />
+                <text x="930" y="626" text-anchor="middle" class="wf-h" font-size="15">Automation</text>
+                <text x="930" y="646" text-anchor="middle" class="wf-sb" font-size="12.5">n8n &middot; Make &middot; Zapier</text>
               </g>
             </svg>
           </div>
@@ -4756,7 +4773,7 @@
       function q(id) { return wf.querySelector('#' + id); }
       var seq = [
         { at: 0, nodes: ['n-trigger'], flows: ['f1'] },
-        { at: 520, nodes: ['n-hannah', 'n-claude', 'n-roots', 'n-gpt', 'n-react'], flows: ['fc', 'fm', 'fg', 'fr'] },
+        { at: 520, nodes: ['n-hannah', 'n-claude', 'n-roots', 'n-gpt', 'n-react', 'n-auto'], flows: ['fc', 'fm', 'fg', 'fr', 'fa'] },
         { at: 1100, nodes: ['n-branch'], flows: ['f2'] },
         { at: 1640, nodes: ['n-pub', 'n-ship'], flows: ['f3', 'f4'] }
       ];
