@@ -1368,14 +1368,22 @@
 
     @media (max-width:760px) {
       .cwall {
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
         gap: 14px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
       }
-    }
 
-    @media (max-width:440px) {
-      .cwall {
-        grid-template-columns: 1fr;
+      .cwall::-webkit-scrollbar {
+        display: none;
+      }
+
+      .cwall>.cwork {
+        flex: 0 0 82%;
+        scroll-snap-align: center;
       }
     }
 
@@ -5050,6 +5058,39 @@
       (function loop() { cx += (gx - cx) * .1; cy += (gy - cy) * .1; glow.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)'; requestAnimationFrame(loop); })();
       document.querySelectorAll('.card').forEach(function (c) { c.addEventListener('pointermove', function (e) { var b = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - b.left) + 'px'); c.style.setProperty('--my', (e.clientY - b.top) + 'px'); }); });
     } else { glow.style.display = 'none'; }
+
+    /* "What the system ships" — mobile: swipeable, auto-advancing card carousel (desktop stays a grid) */
+    (function () {
+      var wall = document.querySelector('#content .cwall'); if (!wall) return;
+      var mq = matchMedia('(max-width:760px)');
+      var timer = null, idx = 0;
+      function cards() { return wall.querySelectorAll('.cwork'); }
+      function go(i) {
+        var cs = cards(); if (!cs.length) return;
+        idx = (i + cs.length) % cs.length;
+        var c = cs[idx];
+        wall.scrollTo({ left: c.offsetLeft - (wall.clientWidth - c.clientWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
+      }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      function start() { if (reduce || !mq.matches) return; stop(); timer = setInterval(function () { go(idx + 1); }, 4000); }
+      var st;
+      wall.addEventListener('scroll', function () {
+        clearTimeout(st);
+        st = setTimeout(function () {
+          var cs = cards(), center = wall.scrollLeft + wall.clientWidth / 2, best = 0, bd = 1e9;
+          cs.forEach(function (c, i) { var cc = c.offsetLeft + c.clientWidth / 2, d = Math.abs(cc - center); if (d < bd) { bd = d; best = i; } });
+          idx = best;
+        }, 120);
+      }, { passive: true });
+      wall.addEventListener('touchstart', stop, { passive: true });
+      wall.addEventListener('touchend', function () { setTimeout(start, 3500); }, { passive: true });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting && mq.matches) { start(); } else { stop(); } });
+        }, { threshold: 0.25 }).observe(wall);
+      }
+      if (mq.addEventListener) mq.addEventListener('change', function () { stop(); });
+    })();
 
     /* Manila time-aware status */
     function tick() {
