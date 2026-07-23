@@ -6122,7 +6122,7 @@
         callHint = document.getElementById('call-hint'),
         muteBtn = document.getElementById('call-mute'),
         endBtn = document.getElementById('call-end');
-      var inCall = false, muted = false, recActive = false, hannahTalking = false, callFinal = '';
+      var inCall = false, muted = false, recActive = false, hannahTalking = false, callFinal = '', micFatal = false;
 
       function setHint(t, cls) { if (callHint) { callHint.textContent = t; callHint.className = 'call-hint' + (cls ? ' ' + cls : ''); } }
       // called from bubble() the moment Ava starts reading a reply during a call
@@ -6139,8 +6139,10 @@
         var rec = new SR(); rec.lang = 'en-US'; rec.interimResults = true; rec.maxAlternatives = 1;
 
         function startRec() {
-          if (!inCall || muted || hannahTalking || recActive) return;
-          callFinal = ''; try { rec.start(); } catch (e) { }
+          if (!inCall || muted || hannahTalking || recActive || micFatal) return;
+          callFinal = '';
+          try { rec.start(); }
+          catch (e) { setHint('Couldn’t start the mic (' + (e && e.name || 'error') + ')', 'muted'); }
         }
         function resumeListen() {
           hannahTalking = false;
@@ -6151,7 +6153,7 @@
           startRec();
         }
         function openCall() {
-          inCall = true; muted = false; hannahTalking = false;
+          inCall = true; muted = false; hannahTalking = false; micFatal = false;
           stopSpeech();
           if (!wrap.classList.contains('open')) open();
           callEl.classList.add('on'); callEl.setAttribute('aria-hidden', 'false');
@@ -6195,10 +6197,23 @@
           if (callTr) callTr.textContent = shown;
           if (shown) setHint('', '');
         };
-        rec.onerror = function () { };
+        rec.onerror = function (e) {
+          var code = (e && e.error) || 'unknown';
+          if (code === 'not-allowed' || code === 'service-not-allowed') {
+            micFatal = true; setHint('Mic blocked — allow microphone access, then tap the mic again', 'muted');
+          } else if (code === 'audio-capture') {
+            micFatal = true; setHint('No microphone found on this device', 'muted');
+          } else if (code === 'no-speech') {
+            setHint('Didn’t catch that — keep talking', 'go'); // transient; onend re-listens
+          } else if (code === 'network') {
+            setHint('Network issue with speech, retrying…', '');
+          } else if (code !== 'aborted') {
+            setHint('Voice input error: ' + code, 'muted');
+          }
+        };
         rec.onend = function () {
           recActive = false; callEl.classList.remove('listening');
-          if (!inCall || muted) return;
+          if (!inCall || muted || micFatal) return;
           var q = (callFinal || (callTr ? callTr.textContent : '') || '').trim();
           if (q) {
             speechEndCb = resumeListen; // when Ava finishes talking, listen again
