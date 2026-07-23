@@ -3797,6 +3797,89 @@
       color: var(--red);
     }
 
+    /* speaker button under each reply — free browser voice */
+    .ask-speak {
+      align-self: flex-start;
+      margin-top: -4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 99px;
+      padding: 5px 11px;
+      font-family: var(--mono);
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+
+    .ask-speak:hover {
+      color: var(--red);
+      border-color: var(--red);
+    }
+
+    .ask-speak.playing {
+      color: #fff;
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .ask-speak svg {
+      width: 13px;
+      height: 13px;
+      flex: none;
+    }
+
+    /* mic button — free browser voice input */
+    .ask-mic {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      width: 42px;
+      height: 42px;
+      flex: none;
+      border-radius: 99px;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      transition: transform .2s, background .2s, color .2s, box-shadow .2s;
+    }
+
+    .ask-mic:hover {
+      transform: translateY(-1px);
+    }
+
+    .ask-mic svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ask-mic.listening {
+      background: var(--red);
+      color: #fff;
+      box-shadow: inset 0 0 0 1px var(--red), 0 0 0 4px rgba(216, 30, 60, .18);
+      animation: askMicPulse 1.4s var(--ease) infinite;
+    }
+
+    @keyframes askMicPulse {
+      50% {
+        box-shadow: inset 0 0 0 1px var(--red), 0 0 0 8px rgba(216, 30, 60, .05);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ask-mic.listening {
+        animation: none;
+      }
+    }
+
     .ask-postbtn {
       align-self: flex-start;
       display: inline-flex;
@@ -3953,6 +4036,158 @@
       color: var(--faint);
       text-align: center;
       letter-spacing: .01em;
+    }
+
+    /* ── call mode: tap the mic to talk to Ava like a phone call ── */
+    .call {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(22px, 5vh, 34px);
+      padding: 30px 26px 34px;
+      text-align: center;
+      background:
+        radial-gradient(120% 80% at 50% -6%, #3a0e18 0%, #1b070c 52%, #0c0406 100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .34s var(--ease);
+    }
+
+    .call.on {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .call-orb {
+      position: relative;
+      width: min(188px, 50vw);
+      height: min(188px, 50vw);
+      border-radius: 50%;
+      overflow: hidden;
+      background:
+        radial-gradient(62% 58% at 34% 28%, #FFC2A6 0%, #FF8A6B 20%, #EE3A58 46%, #C0153A 66%, #79112A 100%);
+      box-shadow:
+        0 0 68px -8px rgba(216, 30, 60, .55),
+        inset 0 -16px 44px rgba(42, 10, 17, .55),
+        inset 0 10px 30px rgba(255, 180, 150, .28);
+      animation: orbBreath 5.5s var(--ease) infinite;
+      will-change: transform;
+    }
+
+    /* a slow rotating sheen so the orb feels alive */
+    .call-orb::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background: conic-gradient(from 0deg, transparent 0 58%, rgba(255, 194, 166, .4) 76%, transparent 92%);
+      animation: orbSpin 7s linear infinite;
+    }
+
+    @keyframes orbBreath {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-7px) scale(1.035); }
+    }
+
+    @keyframes orbSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* livelier while the visitor is talking, big slow swell while Ava replies */
+    .call.listening .call-orb {
+      animation-duration: 2.6s;
+      box-shadow: 0 0 90px -6px rgba(216, 30, 60, .78), inset 0 -16px 44px rgba(42, 10, 17, .5), inset 0 10px 30px rgba(255, 180, 150, .34);
+    }
+
+    .call.speaking .call-orb {
+      animation-duration: 3.6s;
+      box-shadow: 0 0 110px -2px rgba(238, 58, 88, .85), inset 0 -16px 44px rgba(42, 10, 17, .5), inset 0 12px 34px rgba(255, 194, 166, .42);
+    }
+
+    .call-said {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      min-height: 70px;
+    }
+
+    .call-said-label {
+      font-family: var(--mono);
+      font-size: .68rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .82);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .call-transcript {
+      color: #fff;
+      font-family: var(--display);
+      font-size: 1.02rem;
+      line-height: 1.4;
+      max-width: 30ch;
+      min-height: 1.2em;
+    }
+
+    .call-hint {
+      font-family: var(--mono);
+      font-size: .82rem;
+      letter-spacing: .01em;
+      color: rgba(255, 255, 255, .55);
+      min-height: 1.1em;
+    }
+
+    .call-hint.go { color: #7CFFB2; }
+
+    .call-hint.muted { color: #FF9A86; }
+
+    .call-controls {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .call-btn {
+      appearance: none;
+      border: none;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--red);
+      box-shadow: 0 14px 30px -14px rgba(216, 30, 60, .85);
+      transition: transform .2s var(--ease), background .2s var(--ease), box-shadow .2s var(--ease);
+    }
+
+    .call-btn:hover { transform: translateY(-2px); }
+
+    .call-btn svg { width: 24px; height: 24px; }
+
+    .call-mute.muted {
+      background: rgba(255, 255, 255, .14);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .32);
+    }
+
+    .call-end {
+      background: #B01631;
+    }
+
+    .call-end svg { transform: rotate(135deg); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .call, .call-orb, .call-orb::before {
+        animation: none !important;
+        transition: opacity .2s linear !important;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -4944,9 +5179,38 @@
       <form class="ask-form" id="ask-form" autocomplete="off">
         <input class="ask-in" id="ask-in" placeholder="Ask about her work, travels, anything…"
           aria-label="Your message" />
+        <button class="ask-mic" id="ask-mic" type="button" aria-label="Speak your question" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+            stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path
+            d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </button>
         <button class="ask-send" id="ask-send" type="submit" aria-label="Send">&#8594;</button>
       </form>
       <div class="ask-foot">Live AI · answers in Hannah's voice · may improvise</div>
+      <div class="call" id="ask-call" aria-hidden="true">
+        <div class="call-orb" id="call-orb"></div>
+        <div class="call-said">
+          <div class="call-said-label">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path
+              d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            You said:
+          </div>
+          <div class="call-transcript" id="call-transcript"></div>
+          <div class="call-hint go" id="call-hint">Start speaking…</div>
+        </div>
+        <div class="call-controls">
+          <button class="call-btn call-mute" id="call-mute" type="button" aria-label="Mute microphone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path
+              d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </button>
+          <button class="call-btn call-end" id="call-end" type="button" aria-label="End call">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="lbx" id="lbx" aria-hidden="true"><button class="lbx-nav lbx-prev" id="lbx-prev"
@@ -5702,9 +5966,66 @@
       var wrap = document.getElementById('ask'), fab = document.getElementById('ask-fab'),
         panel = document.getElementById('ask-panel'), xBtn = document.getElementById('ask-x'),
         log = document.getElementById('ask-log'), form = document.getElementById('ask-form'),
-        input = document.getElementById('ask-in'), send = document.getElementById('ask-send');
+        input = document.getElementById('ask-in'), send = document.getElementById('ask-send'),
+        mic = document.getElementById('ask-mic');
       if (!wrap) return;
-      var history = [], busy = false, greeted = false;
+      var history = [], busy = false, greeted = false, voiceReply = false;
+
+      /* ── voice: Hannah's "Ava" neural TTS via the hannah-tts function, with the
+         device's own (robotic) browser voice kept only as a fallback if the server
+         is ever unreachable. URL + publishable key are already public in this page. ── */
+      var TTS_URL = 'https://uligntdamfbesnoybdpz.supabase.co/functions/v1/hannah-tts';
+      var TTS_KEY = 'sb_publishable_VV5CJy1L6k1kEYxfimZSsQ_mFctT41H';
+      var synth = window.speechSynthesis || null;
+      var SPKR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+      var curAudio = null, curBtn = null, speechEndCb = null;
+      function fireSpeechEnd() { var cb = speechEndCb; speechEndCb = null; if (cb) cb(); }
+      function stripForSpeech(t) { return String(t).replace(/https?:\/\/[^\s]+/g, 'the link'); }
+      function setLabel(btn, txt) { var s = btn && btn.querySelector('span'); if (s) s.textContent = txt; }
+      function resetBtn(btn) { if (!btn) return; btn.classList.remove('playing'); setLabel(btn, 'Listen'); }
+      function stopSpeech() {
+        if (curAudio) { try { curAudio.pause(); } catch (e) { } curAudio = null; }
+        if (synth) synth.cancel();
+        document.querySelectorAll('.ask-speak.playing').forEach(resetBtn);
+        curBtn = null;
+        // NB: do not clear speechEndCb here — speak() calls stopSpeech() at its start
+        // to cut any prior audio, and clearing it would kill the call's "listen again"
+        // step. It's fired on natural end (fireSpeechEnd) and cleared on hang-up.
+      }
+      function browserSpeak(text, btn) { // device voice — only when Ava can't be reached
+        if (!synth) { resetBtn(btn); fireSpeechEnd(); return; }
+        var u = new SpeechSynthesisUtterance(stripForSpeech(text));
+        u.rate = 1.02;
+        if (btn) { btn.classList.add('playing'); setLabel(btn, 'Stop'); }
+        u.onend = u.onerror = function () { resetBtn(btn); fireSpeechEnd(); };
+        curBtn = btn || null; synth.speak(u);
+      }
+      function speak(text, btn) {
+        var isThis = btn && btn === curBtn && btn.classList.contains('playing');
+        stopSpeech();
+        if (isThis) return; // clicking the active button just stops it
+        if (btn) { btn.classList.add('playing'); setLabel(btn, 'Loading'); }
+        curBtn = btn || null;
+        var mine = curBtn;
+        fetch(TTS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': TTS_KEY, 'Authorization': 'Bearer ' + TTS_KEY },
+          body: JSON.stringify({ text: stripForSpeech(text) })
+        }).then(function (r) { if (!r.ok) throw new Error('tts ' + r.status); return r.blob(); })
+          .then(function (blob) {
+            if (mine !== curBtn) return; // a newer click superseded this one
+            var url = URL.createObjectURL(blob);
+            var a = new Audio(url); curAudio = a;
+            if (mine) setLabel(mine, 'Stop');
+            a.onended = a.onerror = function () {
+              URL.revokeObjectURL(url);
+              if (curBtn === mine) { resetBtn(mine); curAudio = null; curBtn = null; }
+              fireSpeechEnd();
+            };
+            a.play().catch(function () { URL.revokeObjectURL(url); if (mine === curBtn) browserSpeak(text, mine); });
+          })
+          .catch(function () { if (mine === curBtn) browserSpeak(text, mine); });
+      }
       var SUGGEST = ["What do you actually do?", "What are you building?", "Where are you travelling next?"];
 
       function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -5712,7 +6033,20 @@
       function scroll() { log.scrollTop = log.scrollHeight; }
       function bubble(role, text) {
         var d = document.createElement('div'); d.className = 'ask-msg ' + (role === 'me' ? 'me' : 'her');
-        d.innerHTML = linkify(text); log.appendChild(d); scroll(); return d;
+        d.innerHTML = linkify(text); log.appendChild(d);
+        if (role === 'her' && synth) {
+          var b = document.createElement('button');
+          b.type = 'button'; b.className = 'ask-speak'; b.setAttribute('aria-label', 'Read this reply aloud');
+          b.innerHTML = SPKR + '<span>Listen</span>';
+          b.onclick = function () { speak(text, b); };
+          log.appendChild(b);
+          if (voiceReply) {
+            voiceReply = false;
+            if (typeof showCallReply === 'function') showCallReply(text); // call mode: swell the orb
+            speak(text, b);
+          }
+        }
+        scroll(); return d;
       }
       function dots() {
         var d = document.createElement('div'); d.className = 'ask-dots'; d.innerHTML = '<i></i><i></i><i></i>';
@@ -5732,7 +6066,7 @@
         suggestions();
       }
       function open() { wrap.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); greet(); setTimeout(function () { input.focus(); }, 260); }
-      function close() { wrap.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+      function close() { if (window.__endCall) window.__endCall(); wrap.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
 
       function ask(text) {
         text = (text || '').trim(); if (!text || busy) return;
@@ -5778,6 +6112,104 @@
       fab.onclick = open; xBtn.onclick = close;
       form.addEventListener('submit', function (e) { e.preventDefault(); ask(input.value); });
       addEventListener('keydown', function (e) { if (e.key === 'Escape' && wrap.classList.contains('open')) close(); });
+
+      /* ── call mode: tap the mic to talk to Ava like a phone call ──
+         open → listen → transcribe → send → Ava replies (orb swells) → listen again.
+         Mute pauses the mic; hang-up (or closing the chat) ends the call. */
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var callEl = document.getElementById('ask-call'),
+        callTr = document.getElementById('call-transcript'),
+        callHint = document.getElementById('call-hint'),
+        muteBtn = document.getElementById('call-mute'),
+        endBtn = document.getElementById('call-end');
+      var inCall = false, muted = false, recActive = false, hannahTalking = false, callFinal = '';
+
+      function setHint(t, cls) { if (callHint) { callHint.textContent = t; callHint.className = 'call-hint' + (cls ? ' ' + cls : ''); } }
+      // called from bubble() the moment Ava starts reading a reply during a call
+      function showCallReply() {
+        if (!callEl) return;
+        hannahTalking = true;
+        callEl.classList.remove('listening');
+        callEl.classList.add('speaking');
+        setHint('Hannah is speaking…', '');
+      }
+
+      if (SR && mic && callEl) {
+        mic.hidden = false;
+        var rec = new SR(); rec.lang = 'en-US'; rec.interimResults = true; rec.maxAlternatives = 1;
+
+        function startRec() {
+          if (!inCall || muted || hannahTalking || recActive) return;
+          callFinal = ''; try { rec.start(); } catch (e) { }
+        }
+        function resumeListen() {
+          hannahTalking = false;
+          if (!inCall || muted) return;
+          callEl.classList.remove('speaking');
+          if (callTr) callTr.textContent = '';
+          setHint('Listening…', 'go');
+          startRec();
+        }
+        function openCall() {
+          inCall = true; muted = false; hannahTalking = false;
+          stopSpeech();
+          if (!wrap.classList.contains('open')) open();
+          callEl.classList.add('on'); callEl.setAttribute('aria-hidden', 'false');
+          wrap.classList.add('calling');
+          muteBtn.classList.remove('muted');
+          if (callTr) callTr.textContent = '';
+          setHint('Start speaking…', 'go');
+          startRec();
+        }
+        function endCall() {
+          if (!inCall) return;
+          inCall = false; hannahTalking = false;
+          speechEndCb = null; voiceReply = false; // cancel any pending resume / auto-speak
+          try { rec.stop(); } catch (e) { }
+          stopSpeech();
+          callEl.classList.remove('on', 'listening', 'speaking');
+          callEl.setAttribute('aria-hidden', 'true');
+          wrap.classList.remove('calling');
+        }
+        window.__endCall = endCall; // lets close()/Esc end an active call
+
+        mic.onclick = function () { if (inCall) endCall(); else openCall(); };
+        endBtn.onclick = endCall;
+        muteBtn.onclick = function () {
+          muted = !muted; muteBtn.classList.toggle('muted', muted);
+          if (muted) { try { rec.stop(); } catch (e) { } setHint('Muted', 'muted'); }
+          else if (!hannahTalking) { setHint('Listening…', 'go'); startRec(); }
+        };
+
+        rec.onstart = function () {
+          recActive = true;
+          if (inCall) { callEl.classList.add('listening'); if (!muted && !hannahTalking) setHint('Listening…', 'go'); }
+        };
+        rec.onresult = function (e) {
+          var interim = '';
+          for (var i = e.resultIndex; i < e.results.length; i++) {
+            var r = e.results[i];
+            if (r.isFinal) callFinal += r[0].transcript; else interim += r[0].transcript;
+          }
+          var shown = (callFinal + interim).trim();
+          if (callTr) callTr.textContent = shown;
+          if (shown) setHint('', '');
+        };
+        rec.onerror = function () { };
+        rec.onend = function () {
+          recActive = false; callEl.classList.remove('listening');
+          if (!inCall || muted) return;
+          var q = (callFinal || (callTr ? callTr.textContent : '') || '').trim();
+          if (q) {
+            speechEndCb = resumeListen; // when Ava finishes talking, listen again
+            voiceReply = true;          // the reply auto-speaks in Ava
+            setHint('Hannah is thinking…', '');
+            ask(q);
+          } else {
+            startRec();                 // heard nothing — keep the mic open
+          }
+        };
+      }
     })();
   </script>
 </body>
