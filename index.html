@@ -5987,28 +5987,41 @@
       var TTS_KEY = 'sb_publishable_VV5CJy1L6k1kEYxfimZSsQ_mFctT41H';
       var synth = window.speechSynthesis || null;
       var SPKR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-      var curAudio = null, curBtn = null, speechEndCb = null, voiceAudio = null;
-      // iOS only lets audio play if it was started by a user tap. We keep ONE <audio>
-      // element and "unlock" it with a silent clip on the first tap (mic / Listen), then
-      // reuse that same unlocked element for every reply — so Ava plays even though the
-      // reply arrives a moment after you finish speaking.
+      var curBtn = null, speechEndCb = null;
+      var actx = null, curSrc = null, curHtmlAudio = null;
+      // Playback runs through the Web Audio API (not an <audio> element) so Ava is heard
+      // on iPhones even when the physical ring/silent switch is on — an <audio> element is
+      // muted by that switch; Web Audio is not. We unlock/resume the AudioContext on the
+      // first tap; once running it stays running, so every later reply plays too.
+      // (Legacy silent clip kept only for the <audio> fallback path.)
       var SILENT_MP3 = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYyLjEyLjEwMgAAAAAAAAAAAAAA//OEwAAAAAAAAAAAAEluZm8AAAAPAAAACQAAAZgAh4eHh4eHh4eHh4eWlpaWlpaWlpaWlqWlpaWlpaWlpaWltLS0tLS0tLS0tLTDw8PDw8PDw8PDw9LS0tLS0tLS0tLS4eHh4eHh4eHh4eHw8PDw8PDw8PDw8P//////////////AAAAAExhdmM2Mi4yOAAAAAAAAAAAAAAAACQD8AAAAAAAAAGYosppzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//MUxAAAAANIAAAAAExBTUU0LjBVVVVV//MUxAsAAANIAAAAAFVVVVVVVVVVVVVV//MUxBYAAANIAAAAAFVVVVVVVVVVVVVV//MUxCEAAANIAAAAAFVVVVVVVVVVVVVV//MUxCwAAANIAAAAAFVVVVVVVVVVVVVV//MUxDcAAANIAAAAAFVVVVVVVVVVVVVV//MUxEIAAANIAAAAAFVVVVVVVVVVVVVV//MUxE0AAANIAAAAAFVVVVVVVVVVVVVV//MUxFgAAANIAAAAAFVVVVVVVVVVVVVV';
-      function getVoiceAudio() { if (!voiceAudio) { voiceAudio = new Audio(); voiceAudio.preload = 'auto'; } return voiceAudio; }
+      function getCtx() {
+        if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
+        return actx;
+      }
       function unlockAudio() {
-        try {
-          var a = getVoiceAudio();
-          if (a.__unlocked) return;
-          a.src = SILENT_MP3;
-          var p = a.play();
-          if (p && p.then) p.then(function () { a.pause(); try { a.currentTime = 0; } catch (e) { } a.__unlocked = true; }).catch(function () { });
-        } catch (e) { }
+        var c = getCtx();
+        if (!c) return;
+        if (c.state === 'suspended') { try { c.resume(); } catch (e) { } }
+        try { var b = c.createBuffer(1, 1, 22050); var s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } catch (e) { }
+      }
+      function stopSrc() {
+        if (curSrc) { try { curSrc.onended = null; curSrc.stop(0); } catch (e) { } curSrc = null; }
+        if (curHtmlAudio) { try { curHtmlAudio.pause(); } catch (e) { } curHtmlAudio = null; }
+      }
+      function playHtml(url, text, mine) { // fallback when Web Audio can't be used
+        var a = new Audio(url); curHtmlAudio = a;
+        a.onended = a.onerror = function () { URL.revokeObjectURL(url); if (curBtn === mine) { resetBtn(mine); curHtmlAudio = null; curBtn = null; } fireSpeechEnd(); };
+        if (mine) setLabel(mine, 'Stop');
+        var pl = a.play();
+        if (pl && pl.catch) pl.catch(function () { URL.revokeObjectURL(url); if (mine === curBtn) browserSpeak(text, mine); });
       }
       function fireSpeechEnd() { var cb = speechEndCb; speechEndCb = null; if (cb) cb(); }
       function stripForSpeech(t) { return String(t).replace(/https?:\/\/[^\s]+/g, 'the link'); }
       function setLabel(btn, txt) { var s = btn && btn.querySelector('span'); if (s) s.textContent = txt; }
       function resetBtn(btn) { if (!btn) return; btn.classList.remove('playing'); setLabel(btn, 'Listen'); }
       function stopSpeech() {
-        if (curAudio) { try { curAudio.pause(); } catch (e) { } curAudio = null; }
+        stopSrc();
         if (synth) synth.cancel();
         document.querySelectorAll('.ask-speak.playing').forEach(resetBtn);
         curBtn = null;
@@ -6035,20 +6048,20 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': TTS_KEY, 'Authorization': 'Bearer ' + TTS_KEY },
           body: JSON.stringify({ text: stripForSpeech(text) })
-        }).then(function (r) { if (!r.ok) throw new Error('tts ' + r.status); return r.blob(); })
-          .then(function (blob) {
+        }).then(function (r) { if (!r.ok) throw new Error('tts ' + r.status); return r.arrayBuffer(); })
+          .then(function (buf) {
             if (mine !== curBtn) return; // a newer click superseded this one
-            var url = URL.createObjectURL(blob);
-            var a = getVoiceAudio(); curAudio = a; // reuse the one (iOS-unlocked) player
-            a.onended = a.onerror = function () {
-              URL.revokeObjectURL(url);
-              if (curBtn === mine) { resetBtn(mine); curAudio = null; curBtn = null; }
-              fireSpeechEnd();
-            };
-            a.src = url;
-            if (mine) setLabel(mine, 'Stop');
-            var pl = a.play();
-            if (pl && pl.catch) pl.catch(function () { URL.revokeObjectURL(url); if (mine === curBtn) browserSpeak(text, mine); });
+            var c = getCtx();
+            if (!c) { playHtml(URL.createObjectURL(new Blob([buf], { type: 'audio/mpeg' })), text, mine); return; }
+            c.decodeAudioData(buf.slice(0), function (audioBuf) {
+              if (mine !== curBtn) return;
+              stopSrc();
+              var s = c.createBufferSource(); s.buffer = audioBuf; s.connect(c.destination); curSrc = s;
+              if (mine) setLabel(mine, 'Stop');
+              s.onended = function () { if (curBtn === mine) { resetBtn(mine); curSrc = null; curBtn = null; } fireSpeechEnd(); };
+              try { if (c.state === 'suspended') c.resume(); } catch (e) { }
+              try { s.start(0); } catch (e) { if (mine === curBtn) browserSpeak(text, mine); }
+            }, function () { if (mine === curBtn) playHtml(URL.createObjectURL(new Blob([buf], { type: 'audio/mpeg' })), text, mine); });
           })
           .catch(function () { if (mine === curBtn) browserSpeak(text, mine); });
       }
