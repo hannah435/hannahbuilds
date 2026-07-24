@@ -6059,8 +6059,11 @@
               var s = c.createBufferSource(); s.buffer = audioBuf; s.connect(c.destination); curSrc = s;
               if (mine) setLabel(mine, 'Stop');
               s.onended = function () { if (curBtn === mine) { resetBtn(mine); curSrc = null; curBtn = null; } fireSpeechEnd(); };
-              try { if (c.state === 'suspended') c.resume(); } catch (e) { }
-              try { s.start(0); } catch (e) { if (mine === curBtn) browserSpeak(text, mine); }
+              // Chrome auto-suspends the context between hands-free turns (no tap to keep
+              // it awake), so wait for resume() to finish before starting — otherwise the
+              // reply plays into a suspended context and is silent (the Mac call bug).
+              var go = function () { try { s.start(0); } catch (e) { if (mine === curBtn) browserSpeak(text, mine); } };
+              if (c.state === 'suspended' && c.resume) { c.resume().then(go, go); } else { go(); }
             }, function () { if (mine === curBtn) playHtml(URL.createObjectURL(new Blob([buf], { type: 'audio/mpeg' })), text, mine); });
           })
           .catch(function () { if (mine === curBtn) browserSpeak(text, mine); });
