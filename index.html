@@ -4147,6 +4147,15 @@
 
     .call-hint.muted { color: #FF9A86; }
 
+    .call-orb { cursor: pointer; }
+
+    /* waiting for the visitor to tap the orb (iOS: one tap per turn) */
+    .call.awaiting .call-orb {
+      outline: 2px solid rgba(255, 154, 134, .7);
+      outline-offset: 9px;
+      animation: orbBreath 2.4s var(--ease) infinite;
+    }
+
     .call-controls {
       display: flex;
       align-items: center;
@@ -6138,7 +6147,11 @@
         callTr = document.getElementById('call-transcript'),
         callHint = document.getElementById('call-hint'),
         muteBtn = document.getElementById('call-mute'),
-        endBtn = document.getElementById('call-end');
+        endBtn = document.getElementById('call-end'),
+        callOrb = document.getElementById('call-orb');
+      // iOS/iPadOS can only start speech recognition from a user tap, so it uses
+      // tap-the-orb-to-talk per turn; desktop stays hands-free (auto-continuous).
+      var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       var inCall = false, muted = false, recActive = false, hannahTalking = false, callFinal = '', micFatal = false;
 
       function setHint(t, cls) { if (callHint) { callHint.textContent = t; callHint.className = 'call-hint' + (cls ? ' ' + cls : ''); } }
@@ -6166,8 +6179,13 @@
           if (!inCall || muted) return;
           callEl.classList.remove('speaking');
           if (callTr) callTr.textContent = '';
-          setHint('Listening…', 'go');
-          startRec();
+          if (isIOS) {
+            callEl.classList.add('awaiting'); // iOS: next turn needs a tap
+            setHint('Tap the circle to reply', '');
+          } else {
+            setHint('Listening…', 'go');
+            startRec();
+          }
         }
         function openCall() {
           inCall = true; muted = false; hannahTalking = false; micFatal = false;
@@ -6186,7 +6204,7 @@
           speechEndCb = null; voiceReply = false; // cancel any pending resume / auto-speak
           try { rec.stop(); } catch (e) { }
           stopSpeech();
-          callEl.classList.remove('on', 'listening', 'speaking');
+          callEl.classList.remove('on', 'listening', 'speaking', 'awaiting');
           callEl.setAttribute('aria-hidden', 'true');
           wrap.classList.remove('calling');
         }
@@ -6194,6 +6212,16 @@
 
         mic.onclick = function () { unlockAudio(); if (inCall) endCall(); else openCall(); };
         endBtn.onclick = endCall;
+        // Tap the orb: start your turn (iOS needs this each turn); tap again to send early.
+        callOrb.onclick = function () {
+          if (!inCall) return;
+          unlockAudio();
+          if (recActive) { try { rec.stop(); } catch (e) { } return; }
+          hannahTalking = false; stopSpeech();
+          callEl.classList.remove('speaking', 'awaiting');
+          setHint('Listening…', 'go');
+          startRec();
+        };
         muteBtn.onclick = function () {
           muted = !muted; muteBtn.classList.toggle('muted', muted);
           if (muted) { try { rec.stop(); } catch (e) { } setHint('Muted', 'muted'); }
@@ -6202,7 +6230,7 @@
 
         rec.onstart = function () {
           recActive = true;
-          if (inCall) { callEl.classList.add('listening'); if (!muted && !hannahTalking) setHint('Listening…', 'go'); }
+          if (inCall) { callEl.classList.remove('awaiting'); callEl.classList.add('listening'); if (!muted && !hannahTalking) setHint('Listening…', 'go'); }
         };
         rec.onresult = function (e) {
           var interim = '';
